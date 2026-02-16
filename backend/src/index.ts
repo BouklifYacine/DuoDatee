@@ -16,10 +16,40 @@ app.use(
   }),
 );
 
+app.use("/api/auth/*", async (c, next) => {
+  const startedAt = Date.now();
+  console.log("[auth-route] request:start", {
+    method: c.req.method,
+    path: c.req.path,
+    origin: c.req.header("origin") ?? null,
+    userAgent: c.req.header("user-agent") ?? null,
+  });
+
+  await next();
+
+  console.log("[auth-route] request:end", {
+    method: c.req.method,
+    path: c.req.path,
+    status: c.res.status,
+    durationMs: Date.now() - startedAt,
+  });
+});
+
 app.get('/', (c) => {
   return c.text('Hello Hono!')
 })
 
-app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
+app.on(["POST", "GET"], "/api/auth/*", async (c) => {
+  try {
+    return await auth.handler(c.req.raw);
+  } catch (error) {
+    console.error("[auth-route] request:exception", {
+      method: c.req.method,
+      path: c.req.path,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return c.json({ error: "Internal Server Error" }, 500);
+  }
+});
 
 export default app
