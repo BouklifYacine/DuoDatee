@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { useState } from "react";
 import {
   ActivityIndicator,
@@ -51,8 +51,8 @@ export default function SignUpScreen() {
       return result;
     },
     onSuccess: () => {
-      console.log("[sign-up] mutation:success -> redirect /(tabs)");
-      router.replace("/(tabs)");
+      console.log("[sign-up] mutation:success -> redirect /sign-in");
+      router.replace("/sign-in");
     },
     onError: (error) => {
       console.log("[sign-up] mutation:error", { message: error.message });
@@ -159,6 +159,10 @@ export default function SignUpScreen() {
             <ThemedText style={styles.buttonText}>S'inscrire</ThemedText>
           )}
         </Pressable>
+
+        <Link href="/sign-in">
+          <ThemedText type="link">Deja un compte ? Se connecter</ThemedText>
+        </Link>
       </View>
     </View>
   );
