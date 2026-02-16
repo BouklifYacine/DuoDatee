@@ -4,65 +4,34 @@ import Constants from "expo-constants";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 
-const getBaseURL = () => {
-  const envBaseURL =
-    Platform.OS === "web"
-      ? process.env.EXPO_PUBLIC_API_URL_WEB ?? process.env.EXPO_PUBLIC_API_URL
-      : process.env.EXPO_PUBLIC_API_URL_NATIVE ?? process.env.EXPO_PUBLIC_API_URL;
+function getBaseURL(): string {
+  const envURL = process.env.EXPO_PUBLIC_API_URL;
+  if (envURL) return envURL;
+
+  if (Platform.OS === "web") return "http://localhost:3000";
+
   const hostUri =
     (Constants.expoConfig as { hostUri?: string } | null)?.hostUri ??
     (Constants as unknown as { manifest2?: { extra?: { expoGo?: { debuggerHost?: string } } } })
       .manifest2?.extra?.expoGo?.debuggerHost;
 
-  if (envBaseURL) {
-    return { baseURL: envBaseURL, source: "env", hostUri };
-  }
-
-  if (Platform.OS === "web") {
-    return { baseURL: "http://localhost:3000", source: "web-default", hostUri };
-  }
-
-  // Expo Go usually exposes the dev server host here (e.g. "192.168.1.12:8081").
   const host = hostUri?.split(":")[0];
-  if (host) {
-    return { baseURL: `http://${host}:3000`, source: "expo-host-uri", hostUri };
-  }
+  if (host) return `http://${host}:3000`;
 
-  // Android emulator special localhost mapping.
-  if (Platform.OS === "android") {
-    return { baseURL: "http://10.0.2.2:3000", source: "android-emulator", hostUri };
-  }
+  if (Platform.OS === "android") return "http://10.0.2.2:3000";
 
-  return { baseURL: "http://localhost:3000", source: "fallback-localhost", hostUri };
-};
-
-const selectedEnvBaseURL =
-  Platform.OS === "web"
-    ? process.env.EXPO_PUBLIC_API_URL_WEB ?? process.env.EXPO_PUBLIC_API_URL
-    : process.env.EXPO_PUBLIC_API_URL_NATIVE ?? process.env.EXPO_PUBLIC_API_URL;
-
-const authRuntimeConfig = getBaseURL();
-if (__DEV__) {
-  console.log("[auth-client] runtime", {
-    platform: Platform.OS,
-    source: authRuntimeConfig.source,
-    hostUri: authRuntimeConfig.hostUri,
-    baseURL: authRuntimeConfig.baseURL,
-    envBaseURL: selectedEnvBaseURL ?? null,
-  });
+  return "http://localhost:3000";
 }
 
 export const authClient = createAuthClient({
-    baseURL: authRuntimeConfig.baseURL,
-    plugins: [
-        expoClient({
-            scheme: "frontend",
-            storagePrefix: "frontend",
-            storage: SecureStore,
-        })
-    ]
+  baseURL: getBaseURL(),
+  plugins: [
+    expoClient({
+      scheme: "frontend",
+      storagePrefix: "frontend",
+      storage: SecureStore,
+    }),
+  ],
 });
 
-
-
-export const { signIn, signUp, signOut, useSession } = authClient
+export const { signIn, signUp, signOut, useSession } = authClient;

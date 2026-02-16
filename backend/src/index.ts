@@ -1,49 +1,47 @@
-import { Hono } from 'hono'
-import { auth } from '../lib/auth';
-import { cors } from 'hono/cors';
+import { Hono } from "hono";
+import { auth } from "../lib/auth";
+import { cors } from "hono/cors";
 
-const app = new Hono()
+const app = new Hono();
+
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:8081",
+  process.env.BETTER_AUTH_URL,
+  "frontend://",
+].filter(Boolean) as string[];
 
 app.use(
-  "/api/auth/*", // or replace with "*" to enable cors for all routes
+  "/api/auth/*",
   cors({
-    origin: "http://localhost:3000", // replace with your origin
+    origin: (origin) => {
+      if (!origin) return allowedOrigins[0];
+      if (
+        allowedOrigins.includes(origin) ||
+        origin.startsWith("exp://") ||
+        origin.startsWith("frontend://")
+      ) {
+        return origin;
+      }
+      return allowedOrigins[0];
+    },
     allowHeaders: ["Content-Type", "Authorization"],
     allowMethods: ["POST", "GET", "OPTIONS"],
-    exposeHeaders: ["Content-Length"],
+    exposeHeaders: ["Content-Length", "Set-Cookie"],
     maxAge: 600,
     credentials: true,
   }),
 );
 
-app.use("/api/auth/*", async (c, next) => {
-  const startedAt = Date.now();
-  console.log("[auth-route] request:start", {
-    method: c.req.method,
-    path: c.req.path,
-    origin: c.req.header("origin") ?? null,
-    userAgent: c.req.header("user-agent") ?? null,
-  });
-
-  await next();
-
-  console.log("[auth-route] request:end", {
-    method: c.req.method,
-    path: c.req.path,
-    status: c.res.status,
-    durationMs: Date.now() - startedAt,
-  });
+app.get("/", (c) => {
+  return c.text("Hello Hono!");
 });
-
-app.get('/', (c) => {
-  return c.text('Hello Hono!')
-})
 
 app.on(["POST", "GET"], "/api/auth/*", async (c) => {
   try {
     return await auth.handler(c.req.raw);
   } catch (error) {
-    console.error("[auth-route] request:exception", {
+    console.error("[auth] unhandled exception", {
       method: c.req.method,
       path: c.req.path,
       error: error instanceof Error ? error.message : String(error),
@@ -52,4 +50,4 @@ app.on(["POST", "GET"], "/api/auth/*", async (c) => {
   }
 });
 
-export default app
+export default app;

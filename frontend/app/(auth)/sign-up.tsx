@@ -27,21 +27,10 @@ export default function SignUpScreen() {
 
   const signUpMutation = useMutation({
     mutationFn: async (input: SignUpInput) => {
-      console.log("[sign-up] mutation:start", {
-        email: input.email,
-        nameLength: input.name.length,
-        passwordLength: input.password.length,
-      });
       const result = await signUp.email({
         name: input.name,
         email: input.email,
         password: input.password,
-      });
-
-      console.log("[sign-up] mutation:result", {
-        hasData: Boolean(result.data),
-        hasError: Boolean(result.error),
-        errorMessage: result.error?.message ?? null,
       });
 
       if (result.error) {
@@ -51,11 +40,9 @@ export default function SignUpScreen() {
       return result;
     },
     onSuccess: () => {
-      console.log("[sign-up] mutation:success -> redirect /sign-in");
       router.replace("/sign-in");
     },
     onError: (error) => {
-      console.log("[sign-up] mutation:error", { message: error.message });
       setServerError(error.message);
     },
   });
@@ -67,22 +54,15 @@ export default function SignUpScreen() {
   };
 
   const submit = () => {
-    console.log("[sign-up] submit:clicked");
     const payload: SignUpInput = {
       name: values.name.trim(),
       email: values.email.trim().toLowerCase(),
       password: values.password,
     };
-    console.log("[sign-up] submit:payload", {
-      email: payload.email,
-      nameLength: payload.name.length,
-      passwordLength: payload.password.length,
-    });
 
     const parsed = signUpSchema.safeParse(payload);
     if (!parsed.success) {
       const errors = parsed.error.flatten().fieldErrors;
-      console.log("[sign-up] submit:validation-failed", errors);
       setFieldErrors({
         name: errors.name?.[0],
         email: errors.email?.[0],
@@ -91,7 +71,6 @@ export default function SignUpScreen() {
       return;
     }
 
-    console.log("[sign-up] submit:validation-ok");
     setFieldErrors({});
     setServerError(null);
     signUpMutation.mutate(parsed.data);

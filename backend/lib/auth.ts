@@ -1,52 +1,56 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
-import { openAPI } from "better-auth/plugins"
+import { openAPI } from "better-auth/plugins";
 import { expo } from "@better-auth/expo";
 
 const isProduction = process.env.NODE_ENV === "production";
+const baseURL = process.env.BETTER_AUTH_URL ?? "http://localhost:3000";
 
 export const auth = betterAuth({
-    database: prismaAdapter(prisma, {
-        provider: "postgresql",
-    }),
+  database: prismaAdapter(prisma, {
+    provider: "postgresql",
+  }),
 
-    emailAndPassword: {
-        enabled: true,
-        autoSignIn: false,
-        minPasswordLength: 6,
+  emailAndPassword: {
+    enabled: true,
+    autoSignIn: false,
+    minPasswordLength: 6,
+  },
+
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     },
-    socialProviders: {
-        google: {
-            clientId: process.env.GOOGLE_CLIENT_ID as string,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-        },
+  },
+
+  advanced: {
+    defaultCookieAttributes: {
+      sameSite: "none",
+      secure: true,
     },
+  },
 
-    advanced: {
-        defaultCookieAttributes: {
-            sameSite: "none",
-            secure: true,
-            partitioned: true // New browser standards will mandate this for foreign cookies
-        },
-        crossSubDomainCookies: {
-            enabled: true
-        }
-    },
-    plugins: [openAPI(), expo()],
-    trustedOrigins: [
-        "myapp://",
-        "frontend://",
-        "http://localhost:3000",
-        "http://localhost:8081",
+  account: {
+    skipStateCookieCheck: true,
+  },
 
-        // Non-production mode - Expo's exp:// scheme with local IP ranges
-        ...(!isProduction ? [
-            "exp://",                      // Trust all Expo URLs (prefix matching)
-            "exp://**",                    // Trust all Expo URLs (wildcard matching)
-            "exp://192.168.*.*:*/**",      // Trust 192.168.x.x IP range with any port and path
-        ] : [])
-    ]
+  plugins: [openAPI(), expo()],
 
-
+  trustedOrigins: [
+    "frontend://",
+    "frontend://**",
+    baseURL,
+    "http://localhost:3000",
+    "http://localhost:8081",
+    ...(!isProduction
+      ? [
+          "exp://",
+          "exp://**",
+          "exp://192.168.*.*:*/**",
+          "https://*.ngrok-free.dev",
+        ]
+      : []),
+  ],
 });
