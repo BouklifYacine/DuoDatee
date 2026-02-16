@@ -37,6 +37,24 @@ export default function SignInScreen() {
     },
   });
 
+  const googleSignInMutation = useMutation({
+    mutationFn: async () => {
+      const result = await signIn.social({
+        provider: "google",
+        callbackURL: "/(tabs)",
+      });
+
+      if (result.error) {
+        throw new Error(result.error.message ?? "Connexion Google impossible");
+      }
+
+      return result;
+    },
+    onError: (mutationError) => {
+      setError(mutationError.message);
+    },
+  });
+
   const submit = () => {
     setError(null);
     signInMutation.mutate(values);
@@ -79,6 +97,21 @@ export default function SignInScreen() {
             <ActivityIndicator color="#ffffff" />
           ) : (
             <ThemedText style={styles.buttonText}>Se connecter</ThemedText>
+          )}
+        </Pressable>
+
+        <Pressable
+          onPress={() => {
+            setError(null);
+            googleSignInMutation.mutate();
+          }}
+          disabled={googleSignInMutation.isPending}
+          style={[styles.buttonSecondary, googleSignInMutation.isPending && styles.buttonDisabled]}
+        >
+          {googleSignInMutation.isPending ? (
+            <ActivityIndicator color="#0a7ea4" />
+          ) : (
+            <ThemedText style={styles.buttonSecondaryText}>Continuer avec Google</ThemedText>
           )}
         </Pressable>
 
@@ -128,6 +161,17 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "#ffffff",
+    fontWeight: "600",
+  },
+  buttonSecondary: {
+    borderWidth: 1,
+    borderColor: "#0a7ea4",
+    borderRadius: 10,
+    paddingVertical: 14,
+    alignItems: "center",
+  },
+  buttonSecondaryText: {
+    color: "#0a7ea4",
     fontWeight: "600",
   },
 });

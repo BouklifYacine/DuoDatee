@@ -5,7 +5,10 @@ import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 
 const getBaseURL = () => {
-  const envBaseURL = process.env.EXPO_PUBLIC_API_URL;
+  const envBaseURL =
+    Platform.OS === "web"
+      ? process.env.EXPO_PUBLIC_API_URL_WEB ?? process.env.EXPO_PUBLIC_API_URL
+      : process.env.EXPO_PUBLIC_API_URL_NATIVE ?? process.env.EXPO_PUBLIC_API_URL;
   const hostUri =
     (Constants.expoConfig as { hostUri?: string } | null)?.hostUri ??
     (Constants as unknown as { manifest2?: { extra?: { expoGo?: { debuggerHost?: string } } } })
@@ -33,14 +36,21 @@ const getBaseURL = () => {
   return { baseURL: "http://localhost:3000", source: "fallback-localhost", hostUri };
 };
 
+const selectedEnvBaseURL =
+  Platform.OS === "web"
+    ? process.env.EXPO_PUBLIC_API_URL_WEB ?? process.env.EXPO_PUBLIC_API_URL
+    : process.env.EXPO_PUBLIC_API_URL_NATIVE ?? process.env.EXPO_PUBLIC_API_URL;
+
 const authRuntimeConfig = getBaseURL();
-console.log("[auth-client] runtime", {
-  platform: Platform.OS,
-  source: authRuntimeConfig.source,
-  hostUri: authRuntimeConfig.hostUri,
-  baseURL: authRuntimeConfig.baseURL,
-  envBaseURL: process.env.EXPO_PUBLIC_API_URL ?? null,
-});
+if (__DEV__) {
+  console.log("[auth-client] runtime", {
+    platform: Platform.OS,
+    source: authRuntimeConfig.source,
+    hostUri: authRuntimeConfig.hostUri,
+    baseURL: authRuntimeConfig.baseURL,
+    envBaseURL: selectedEnvBaseURL ?? null,
+  });
+}
 
 export const authClient = createAuthClient({
     baseURL: authRuntimeConfig.baseURL,

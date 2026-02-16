@@ -16,6 +16,12 @@ export const auth = betterAuth({
         autoSignIn: false,
         minPasswordLength: 6,
     },
+    socialProviders: {
+        google: {
+            clientId: process.env.GOOGLE_CLIENT_ID as string,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+        },
+    },
 
     advanced: {
         defaultCookieAttributes: {
