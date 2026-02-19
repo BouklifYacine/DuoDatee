@@ -1,9 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
 import { Link, useRouter } from "expo-router";
 import { useState } from "react";
-import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from "react-native";
+import { ActivityIndicator, Pressable, Text, TextInput, View } from "react-native";
 
-import { ThemedText } from "@/components/themed-text";
 import { signIn } from "@/lib/auth-client";
 
 type SignInValues = {
@@ -61,12 +60,10 @@ export default function SignInScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <ThemedText type="title" style={styles.title}>
-        Se connecter
-      </ThemedText>
+    <View className="flex-1 justify-center px-6 gap-2.5">
+      <Text className="text-[28px] font-bold leading-8">Se connecter</Text>
 
-      <View style={styles.form}>
+      <View className="gap-2.5">
         <TextInput
           value={values.email}
           onChangeText={(text) => setValues((prev) => ({ ...prev, email: text }))}
@@ -74,7 +71,7 @@ export default function SignInScreen() {
           keyboardType="email-address"
           autoCapitalize="none"
           autoCorrect={false}
-          style={styles.input}
+          className="border border-gray-400 rounded-xl px-3.5 py-3 text-base"
         />
         <TextInput
           value={values.password}
@@ -83,20 +80,22 @@ export default function SignInScreen() {
           secureTextEntry
           autoCapitalize="none"
           autoCorrect={false}
-          style={styles.input}
+          className="border border-gray-400 rounded-xl px-3.5 py-3 text-base"
         />
 
-        {error ? <ThemedText style={styles.errorText}>{error}</ThemedText> : null}
+        {error ? (
+          <Text className="text-red-600 text-sm">{error}</Text>
+        ) : null}
 
         <Pressable
           onPress={submit}
           disabled={signInMutation.isPending}
-          style={[styles.button, signInMutation.isPending && styles.buttonDisabled]}
+          className={`mt-2.5 bg-[#0a7ea4] rounded-xl py-3.5 items-center ${signInMutation.isPending ? "opacity-70" : ""}`}
         >
           {signInMutation.isPending ? (
             <ActivityIndicator color="#ffffff" />
           ) : (
-            <ThemedText style={styles.buttonText}>Se connecter</ThemedText>
+            <Text className="text-white font-semibold">Se connecter</Text>
           )}
         </Pressable>
 
@@ -106,72 +105,21 @@ export default function SignInScreen() {
             googleSignInMutation.mutate();
           }}
           disabled={googleSignInMutation.isPending}
-          style={[styles.buttonSecondary, googleSignInMutation.isPending && styles.buttonDisabled]}
+          className={`border border-[#0a7ea4] rounded-xl py-3.5 items-center ${googleSignInMutation.isPending ? "opacity-70" : ""}`}
         >
           {googleSignInMutation.isPending ? (
             <ActivityIndicator color="#0a7ea4" />
           ) : (
-            <ThemedText style={styles.buttonSecondaryText}>Continuer avec Google</ThemedText>
+            <Text className="text-[#0a7ea4] font-semibold">
+              Continuer avec Google
+            </Text>
           )}
         </Pressable>
 
         <Link href="/sign-up">
-          <ThemedText type="link">Pas de compte ? S'inscrire</ThemedText>
+          <Text className="text-base text-[#0a7ea4]">Pas de compte ? S'inscrire</Text>
         </Link>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    paddingHorizontal: 24,
-    gap: 10,
-  },
-  title: {
-    fontSize: 28,
-    lineHeight: 32,
-  },
-  form: {
-    gap: 10,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#A0A0A0",
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 16,
-  },
-  errorText: {
-    color: "#D32F2F",
-    fontSize: 14,
-  },
-  button: {
-    marginTop: 10,
-    backgroundColor: "#0a7ea4",
-    borderRadius: 10,
-    paddingVertical: 14,
-    alignItems: "center",
-  },
-  buttonDisabled: {
-    opacity: 0.7,
-  },
-  buttonText: {
-    color: "#ffffff",
-    fontWeight: "600",
-  },
-  buttonSecondary: {
-    borderWidth: 1,
-    borderColor: "#0a7ea4",
-    borderRadius: 10,
-    paddingVertical: 14,
-    alignItems: "center",
-  },
-  buttonSecondaryText: {
-    color: "#0a7ea4",
-    fontWeight: "600",
-  },
-});

@@ -1,15 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
 import { Link, useRouter } from "expo-router";
 import { useState } from "react";
-import {
-  ActivityIndicator,
-  Pressable,
-  StyleSheet,
-  TextInput,
-  View,
-} from "react-native";
+import { ActivityIndicator, Pressable, Text, TextInput, View } from "react-native";
 
-import { ThemedText } from "@/components/themed-text";
 import { signUp } from "@/lib/auth-client";
 import { signUpSchema, type SignUpInput } from "@/lib/schemas/auth";
 
@@ -77,24 +70,22 @@ export default function SignUpScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <ThemedText type="title" style={styles.title}>
-        Creer un compte
-      </ThemedText>
-      <ThemedText style={styles.subtitle}>
+    <View className="flex-1 justify-center px-6 gap-2.5">
+      <Text className="text-[28px] font-bold leading-8">Creer un compte</Text>
+      <Text className="opacity-80 mb-4">
         Inscription avec nom, email et mot de passe
-      </ThemedText>
+      </Text>
 
-      <View style={styles.form}>
+      <View className="gap-2.5">
         <TextInput
           value={values.name}
           onChangeText={(text) => updateField("name", text)}
           placeholder="Nom"
           autoCapitalize="words"
-          style={styles.input}
+          className="border border-gray-400 rounded-xl px-3.5 py-3 text-base"
         />
         {fieldErrors.name ? (
-          <ThemedText style={styles.errorText}>{fieldErrors.name}</ThemedText>
+          <Text className="text-red-600 text-sm">{fieldErrors.name}</Text>
         ) : null}
 
         <TextInput
@@ -104,10 +95,10 @@ export default function SignUpScreen() {
           keyboardType="email-address"
           autoCapitalize="none"
           autoCorrect={false}
-          style={styles.input}
+          className="border border-gray-400 rounded-xl px-3.5 py-3 text-base"
         />
         {fieldErrors.email ? (
-          <ThemedText style={styles.errorText}>{fieldErrors.email}</ThemedText>
+          <Text className="text-red-600 text-sm">{fieldErrors.email}</Text>
         ) : null}
 
         <TextInput
@@ -117,78 +108,32 @@ export default function SignUpScreen() {
           secureTextEntry
           autoCapitalize="none"
           autoCorrect={false}
-          style={styles.input}
+          className="border border-gray-400 rounded-xl px-3.5 py-3 text-base"
         />
         {fieldErrors.password ? (
-          <ThemedText style={styles.errorText}>{fieldErrors.password}</ThemedText>
+          <Text className="text-red-600 text-sm">{fieldErrors.password}</Text>
         ) : null}
 
         {serverError ? (
-          <ThemedText style={styles.errorText}>{serverError}</ThemedText>
+          <Text className="text-red-600 text-sm">{serverError}</Text>
         ) : null}
 
         <Pressable
           onPress={submit}
           disabled={signUpMutation.isPending}
-          style={[styles.button, signUpMutation.isPending && styles.buttonDisabled]}
+          className={`mt-2.5 bg-[#0a7ea4] rounded-xl py-3.5 items-center ${signUpMutation.isPending ? "opacity-70" : ""}`}
         >
           {signUpMutation.isPending ? (
             <ActivityIndicator color="#ffffff" />
           ) : (
-            <ThemedText style={styles.buttonText}>S'inscrire</ThemedText>
+            <Text className="text-white font-semibold">S'inscrire</Text>
           )}
         </Pressable>
 
         <Link href="/sign-in">
-          <ThemedText type="link">Deja un compte ? Se connecter</ThemedText>
+          <Text className="text-base text-[#0a7ea4]">Deja un compte ? Se connecter</Text>
         </Link>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    paddingHorizontal: 24,
-    gap: 10,
-  },
-  title: {
-    fontSize: 28,
-    lineHeight: 32,
-  },
-  subtitle: {
-    opacity: 0.8,
-    marginBottom: 18,
-  },
-  form: {
-    gap: 10,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#A0A0A0",
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 16,
-  },
-  errorText: {
-    color: "#D32F2F",
-    fontSize: 14,
-  },
-  button: {
-    marginTop: 10,
-    backgroundColor: "#0a7ea4",
-    borderRadius: 10,
-    paddingVertical: 14,
-    alignItems: "center",
-  },
-  buttonDisabled: {
-    opacity: 0.7,
-  },
-  buttonText: {
-    color: "#ffffff",
-    fontWeight: "600",
-  },
-});
