@@ -90,7 +90,7 @@ export default function SignInScreen() {
         <Pressable
           onPress={submit}
           disabled={signInMutation.isPending}
-          className={`mt-2.5 bg-[#0a7ea4] rounded-xl py-3.5 items-center ${signInMutation.isPending ? "opacity-70" : ""}`}
+          className={`mt-2.5 bg-primary rounded-xl py-3.5 items-center ${signInMutation.isPending ? "opacity-70" : ""}`}
         >
           {signInMutation.isPending ? (
             <ActivityIndicator color="#ffffff" />
@@ -105,19 +105,19 @@ export default function SignInScreen() {
             googleSignInMutation.mutate();
           }}
           disabled={googleSignInMutation.isPending}
-          className={`border border-[#0a7ea4] rounded-xl py-3.5 items-center ${googleSignInMutation.isPending ? "opacity-70" : ""}`}
+          className={`border border-primary rounded-xl py-3.5 items-center ${googleSignInMutation.isPending ? "opacity-70" : ""}`}
         >
           {googleSignInMutation.isPending ? (
             <ActivityIndicator color="#0a7ea4" />
           ) : (
-            <Text className="text-[#0a7ea4] font-semibold">
+            <Text className="text-primary font-semibold">
               Continuer avec Google
             </Text>
           )}
         </Pressable>
 
         <Link href="/sign-up">
-          <Text className="text-base text-[#0a7ea4]">Pas de compte ? S'inscrire</Text>
+          <Text className="text-base text-primary">Pas de compte ? S'inscrire</Text>
         </Link>
       </View>
     </View>

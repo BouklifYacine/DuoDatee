@@ -30,7 +30,7 @@ export default function HomeScreen() {
       <Pressable
         onPress={() => signOutMutation.mutate()}
         disabled={signOutMutation.isPending}
-        className={`mt-3 bg-[#0a7ea4] rounded-xl py-3.5 items-center ${signOutMutation.isPending ? "opacity-70" : ""}`}
+        className={`mt-3 bg-primary rounded-xl py-3.5 items-center ${signOutMutation.isPending ? "opacity-70" : ""}`}
       >
         <Text className="text-white font-semibold">
           {signOutMutation.isPending ? "Deconnexion..." : "Se deconnecter"}

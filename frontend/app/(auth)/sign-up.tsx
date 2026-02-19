@@ -121,7 +121,7 @@ export default function SignUpScreen() {
         <Pressable
           onPress={submit}
           disabled={signUpMutation.isPending}
-          className={`mt-2.5 bg-[#0a7ea4] rounded-xl py-3.5 items-center ${signUpMutation.isPending ? "opacity-70" : ""}`}
+          className={`mt-2.5 bg-primary rounded-xl py-3.5 items-center ${signUpMutation.isPending ? "opacity-70" : ""}`}
         >
           {signUpMutation.isPending ? (
             <ActivityIndicator color="#ffffff" />
@@ -131,7 +131,7 @@ export default function SignUpScreen() {
         </Pressable>
 
         <Link href="/sign-in">
-          <Text className="text-base text-[#0a7ea4]">Deja un compte ? Se connecter</Text>
+          <Text className="text-base text-primary">Deja un compte ? Se connecter</Text>
         </Link>
       </View>
     </View>
