@@ -27,8 +27,8 @@ export const auth = betterAuth({
 
   advanced: {
     defaultCookieAttributes: {
-      sameSite: "none",
-      secure: true,
+      sameSite: isProduction ? "none" : "lax",
+      secure: isProduction,
     },
   },
 
@@ -44,6 +44,8 @@ export const auth = betterAuth({
     baseURL,
     "http://localhost:3000",
     "http://localhost:8081",
+    "http://10.0.2.2:3000", // Android emulator
+    "http://192.168.1.12:3000", // Téléphone sur même WiFi
     ...(!isProduction
       ? [
           "exp://",

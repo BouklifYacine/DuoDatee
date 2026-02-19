@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { Hono } from "hono";
 import { auth } from "../lib/auth";
 import { cors } from "hono/cors";
@@ -7,6 +8,8 @@ const app = new Hono();
 const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:8081",
+  "http://10.0.2.2:3000",
+  "http://192.168.1.12:3000",
   process.env.BETTER_AUTH_URL,
   "frontend://",
 ].filter(Boolean) as string[];
