@@ -8,7 +8,7 @@ export default function AuthWelcomeScreen() {
   const router = useRouter();
 
   return (
-    <View className="  mt-14">
+    <View className="mt-25">
       <View className="items-center mb-14">
         <Text className="text-primary text-center text-7xl font-bold tracking-tight">
           Duodate
@@ -18,7 +18,7 @@ export default function AuthWelcomeScreen() {
         </Text>
 
         <View className="mt-8">
-          <LoveCouple width={450} height={370} />
+          <LoveCouple width={400} height={300} />
         </View>
       </View>
 

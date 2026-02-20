@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { signUp } from "@/lib/auth-client";
+import { translateAuthError } from "@/lib/auth-errors";
 import { authKeys } from "@/lib/query-keys";
 import type { SignUpPayload } from "@/schemas/signUpSchema";
 
@@ -18,7 +19,8 @@ export function useSignUpMutation() {
       });
 
       if (result.error) {
-        throw new Error(result.error.message ?? "Inscription impossible");
+        const msg = translateAuthError(result.error.message) || "Inscription impossible";
+        throw new Error(msg);
       }
 
       return result;

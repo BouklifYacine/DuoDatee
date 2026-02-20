@@ -1,125 +1,201 @@
-import { useMutation } from "@tanstack/react-query";
-import { Link, useRouter } from "expo-router";
-import { useState } from "react";
-import { ActivityIndicator, Pressable, Text, TextInput, View } from "react-native";
+import { useForm } from "@tanstack/react-form";
+import { Link } from "expo-router";
+import {
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
+import { Input } from "@/components/ui/input";
+import {
+  useGoogleSignInMutation,
+  useSignInMutation,
+} from "@/hooks/use-sign-in-mutation";
+import { createZodValidator } from "@/lib/zod-form-adapter";
+import {
+  signInSchema,
+  validateField,
+  type SignInInput,
+} from "@/schemas/signInSchema";
 
-import { signIn } from "@/lib/auth-client";
+// ─── Default values ─────────────────────────────────────────────────────────
 
-type SignInValues = {
-  email: string;
-  password: string;
+const DEFAULT_VALUES: SignInInput = {
+  email: "",
+  password: "",
 };
 
-export default function SignInScreen() {
-  const router = useRouter();
-  const [values, setValues] = useState<SignInValues>({ email: "", password: "" });
-  const [error, setError] = useState<string | null>(null);
+const signInValidator = createZodValidator(signInSchema);
 
-  const signInMutation = useMutation({
-    mutationFn: async (input: SignInValues) => {
-      const result = await signIn.email({
-        email: input.email.trim().toLowerCase(),
-        password: input.password,
-      });
+// ─── FormField component ─────────────────────────────────────────────────────
 
-      if (result.error) {
-        throw new Error(result.error.message ?? "Connexion impossible");
-      }
-
-      return result;
-    },
-    onSuccess: () => {
-      router.replace("/(tabs)");
-    },
-    onError: (mutationError) => {
-      setError(mutationError.message);
-    },
-  });
-
-  const googleSignInMutation = useMutation({
-    mutationFn: async () => {
-      const result = await signIn.social({
-        provider: "google",
-        callbackURL: "/(tabs)",
-      });
-
-      if (result.error) {
-        throw new Error(result.error.message ?? "Connexion Google impossible");
-      }
-
-      return result;
-    },
-    onError: (mutationError) => {
-      setError(mutationError.message);
-    },
-  });
-
-  const submit = () => {
-    setError(null);
-    signInMutation.mutate(values);
+type FormFieldProps = React.ComponentProps<typeof Input> & {
+  field: {
+    state: {
+      value: string;
+      meta: { errors: (string | null | undefined)[]; isBlurred: boolean };
+    };
+    handleChange: (value: string) => void;
+    handleBlur: () => void;
+    name: string;
   };
+  label: string;
+};
+
+function SignInFormField({ field, label, ...inputProps }: FormFieldProps) {
+  const { state, handleChange, handleBlur } = field;
+  const error = state.meta.errors?.[0];
+  const hasError = Boolean(error);
 
   return (
-    <View className="flex-1 justify-center px-6 gap-2.5">
-      <Text className="text-[28px] font-bold leading-8">Se connecter</Text>
+    <>
+      <Input
+        value={state.value}
+        onChangeText={handleChange}
+        onBlur={handleBlur}
+        placeholder={label}
+        placeholderTextColor="#9ca3af"
+        className={`rounded-xl ${
+          hasError ? "border-red-500" : "border-gray-400"
+        }`}
+        {...inputProps}
+      />
+      {error ? (
+        <Text className="mt-0.5 text-sm text-red-500">{error}</Text>
+      ) : null}
+    </>
+  );
+}
 
-      <View className="gap-2.5">
-        <TextInput
-          value={values.email}
-          onChangeText={(text) => setValues((prev) => ({ ...prev, email: text }))}
-          placeholder="Email"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          autoCorrect={false}
-          className="border border-gray-400 rounded-xl px-3.5 py-3 text-base"
-        />
-        <TextInput
-          value={values.password}
-          onChangeText={(text) => setValues((prev) => ({ ...prev, password: text }))}
-          placeholder="Mot de passe"
-          secureTextEntry
-          autoCapitalize="none"
-          autoCorrect={false}
-          className="border border-gray-400 rounded-xl px-3.5 py-3 text-base"
-        />
+// ─── Screen ──────────────────────────────────────────────────────────────────
 
-        {error ? (
-          <Text className="text-red-600 text-sm">{error}</Text>
-        ) : null}
+export default function SignInScreen() {
+  const signInMutation = useSignInMutation();
+  const googleSignInMutation = useGoogleSignInMutation();
 
-        <Pressable
-          onPress={submit}
-          disabled={signInMutation.isPending}
-          className={`mt-2.5 bg-primary rounded-xl py-3.5 items-center ${signInMutation.isPending ? "opacity-70" : ""}`}
-        >
-          {signInMutation.isPending ? (
-            <ActivityIndicator color="#ffffff" />
-          ) : (
-            <Text className="text-white font-semibold">Se connecter</Text>
-          )}
-        </Pressable>
+  const form = useForm({
+    defaultValues: DEFAULT_VALUES,
+    validators: {
+      onSubmit: ({ value }) => signInValidator(value) ?? null,
+    },
+    onSubmit: async ({ value }) => {
+      const payload = signInSchema.parse(value);
+      signInMutation.mutate(payload);
+    },
+  });
 
-        <Pressable
-          onPress={() => {
-            setError(null);
-            googleSignInMutation.mutate();
-          }}
-          disabled={googleSignInMutation.isPending}
-          className={`border border-primary rounded-xl py-3.5 items-center ${googleSignInMutation.isPending ? "opacity-70" : ""}`}
-        >
-          {googleSignInMutation.isPending ? (
-            <ActivityIndicator color="#0a7ea4" />
-          ) : (
-            <Text className="text-primary font-semibold">
-              Continuer avec Google
+  const handleGoogleSignIn = () => {
+    googleSignInMutation.mutate();
+  };
+
+  const error = signInMutation.error ?? googleSignInMutation.error;
+
+  return (
+    <KeyboardAvoidingView
+      className="flex-1"
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+    >
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{
+          flexGrow: 1,
+          justifyContent: "center",
+          paddingHorizontal: 24,
+          paddingVertical: 32,
+        }}
+        contentInsetAdjustmentBehavior="automatic"
+        keyboardShouldPersistTaps="handled"
+      >
+        <Text className="text-[28px] font-bold leading-8">Se connecter</Text>
+
+        <View className="mt-4 gap-2.5">
+          <form.Field
+            name="email"
+            validators={{
+              onChange: ({ value, fieldApi }) =>
+                fieldApi.state.meta.isBlurred ||
+                form.state.submissionAttempts > 0
+                  ? validateField("email", value) ?? null
+                  : null,
+            }}
+          >
+            {(field) => (
+              <SignInFormField
+                field={field}
+                label="Email"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+            )}
+          </form.Field>
+
+          <form.Field
+            name="password"
+            validators={{
+              onChange: ({ value, fieldApi }) =>
+                fieldApi.state.meta.isBlurred ||
+                form.state.submissionAttempts > 0
+                  ? validateField("password", value) ?? null
+                  : null,
+            }}
+          >
+            {(field) => (
+              <SignInFormField
+                field={field}
+                label="Mot de passe (6 caractères min)"
+                secureTextEntry
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+            )}
+          </form.Field>
+
+          {error ? (
+            <Text className="text-sm text-red-500">{error.message}</Text>
+          ) : null}
+
+          <Pressable
+            onPress={() => form.handleSubmit()}
+            disabled={signInMutation.isPending}
+            className={`mt-2.5 items-center rounded-xl bg-primary py-3.5 ${
+              signInMutation.isPending ? "opacity-70" : ""
+            }`}
+          >
+            {signInMutation.isPending ? (
+              <ActivityIndicator color="#ffffff" />
+            ) : (
+              <Text className="font-semibold text-white">Se connecter</Text>
+            )}
+          </Pressable>
+
+          <Pressable
+            onPress={handleGoogleSignIn}
+            disabled={googleSignInMutation.isPending}
+            className={`items-center rounded-xl border border-primary py-3.5 ${
+              googleSignInMutation.isPending ? "opacity-70" : ""
+            }`}
+          >
+            {googleSignInMutation.isPending ? (
+              <ActivityIndicator color="#0a7ea4" />
+            ) : (
+              <Text className="font-semibold text-primary">
+                Continuer avec Google
+              </Text>
+            )}
+          </Pressable>
+
+          <Link href="/sign-up">
+            <Text className="text-base text-primary">
+              Pas de compte ? S&apos;inscrire
             </Text>
-          )}
-        </Pressable>
-
-        <Link href="/sign-up">
-          <Text className="text-base text-primary">Pas de compte ? S'inscrire</Text>
-        </Link>
-      </View>
-    </View>
+          </Link>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
