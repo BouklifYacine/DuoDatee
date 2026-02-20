@@ -19,7 +19,7 @@ export function useSignUpMutation() {
       });
 
       if (result.error) {
-        const msg = translateAuthError(result.error.message) || "Inscription impossible";
+        const msg = translateAuthError(result.error) || "Inscription impossible";
         throw new Error(msg);
       }
 

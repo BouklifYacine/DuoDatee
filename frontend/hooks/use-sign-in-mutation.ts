@@ -18,7 +18,7 @@ export function useSignInMutation() {
       });
 
       if (result.error) {
-        const msg = translateAuthError(result.error.message) || "Connexion impossible";
+        const msg = translateAuthError(result.error) || "Connexion impossible";
         throw new Error(msg);
       }
 
@@ -44,7 +44,7 @@ export function useGoogleSignInMutation() {
       });
 
       if (result.error) {
-        const msg = translateAuthError(result.error.message) || "Connexion Google impossible";
+        const msg = translateAuthError(result.error) || "Connexion Google impossible";
         throw new Error(msg);
       }
 
