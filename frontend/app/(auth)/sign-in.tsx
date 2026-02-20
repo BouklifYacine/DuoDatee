@@ -1,5 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import { Link } from "expo-router";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -161,9 +162,11 @@ export default function SignInScreen() {
 
           <Pressable
             onPress={() => form.handleSubmit()}
-            disabled={signInMutation.isPending}
-            className={`mt-2.5 items-center rounded-xl bg-primary py-3.5 ${
-              signInMutation.isPending ? "opacity-70" : ""
+            disabled={signInMutation.isPending || googleSignInMutation.isPending}
+            className={`mt-2.5 items-center justify-center rounded-xl bg-primary py-3.5 ${
+              signInMutation.isPending || googleSignInMutation.isPending
+                ? "opacity-70"
+                : ""
             }`}
           >
             {signInMutation.isPending ? (
@@ -175,18 +178,25 @@ export default function SignInScreen() {
 
           <Pressable
             onPress={handleGoogleSignIn}
-            disabled={googleSignInMutation.isPending}
-            className={`items-center rounded-xl border border-primary py-3.5 ${
-              googleSignInMutation.isPending ? "opacity-70" : ""
+            disabled={signInMutation.isPending || googleSignInMutation.isPending}
+            className={`flex-row items-center justify-center gap-2 rounded-xl border border-primary py-3.5 ${
+              signInMutation.isPending || googleSignInMutation.isPending
+                ? "opacity-70"
+                : ""
             }`}
           >
             {googleSignInMutation.isPending ? (
-              <ActivityIndicator color="#0a7ea4" />
+              <ActivityIndicator color="#0a7ea4" size="small" />
             ) : (
-              <Text className="font-semibold text-primary">
-                Continuer avec Google
-              </Text>
+              <MaterialCommunityIcons
+                name="google"
+                size={22}
+                color="#0a7ea4"
+              />
             )}
+            <Text className="font-semibold text-primary">
+              Continuer avec Google
+            </Text>
           </Pressable>
 
           <Link href="/sign-up">
