@@ -4,8 +4,26 @@
 @import "nativewind/theme";
 
 @theme {
-  --color-primary: #0a7ea4;
-  --color-background-muted: #faf9f7;
+  --color-primary: #8B3A52;
+  --color-primary-foreground: #ffffff;
+
+  --color-secondary: #8B3A52;
+  --color-secondary-foreground: #ffffff;
+
+  --color-tertiary: #FDF5F0;
+  --color-tertiary-foreground: #1a1a1a;
+
+  --color-background: #ffffff;
   --color-foreground: #1a1a1a;
-  --color-muted: #6b6b6b;
+
+  --color-muted: #f1f5f9;
+  --color-muted-foreground: #6b6b6b;
+
+  --color-background-muted: #faf9f7;
+
+  --color-border: #e2e8f0;
+  --color-accent: #f1f5f9;
+  --color-accent-foreground: #1a1a1a;
+
+  --color-destructive: #ef4444;
 }
