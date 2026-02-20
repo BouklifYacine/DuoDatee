@@ -19,10 +19,24 @@ model User {
   email         String
   emailVerified Boolean   @default(false)
   image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  sessions      Session[]
-  accounts      Account[]
+
+  // Onboarding — Profil (étape 1)
+  age               Int?             // 18-80
+  gender            Gender?
+  avatarPlaceholder String?
+
+  // Onboarding — Préférences (étape 2)
+  preferredTypes    IdeaType[]  @default([bouffe, boire, activite])
+  preferredBudget   Budget?     @default(medium)
+  preferredDistance Int?        @default(5)
+
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  sessions       Session[]
+  accounts       Account[]
+  favorites      Favorite[]
+  coupleMembers  CoupleMember[]
+  votes          Vote[]
 
   @@unique([email])
   @@map("user")
@@ -74,4 +88,135 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+// --- Domain V1 (lieux, favoris, couple, vote) ---
+
+model Idea {
+  id          String       @id @default(cuid())
+  name        String
+  type        IdeaType
+  budget      Budget
+  latitude    Float
+  longitude   Float
+  address     String?
+  photoUrl    String?
+  vibes       String[]
+  district    String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  favorites    Favorite[]
+  voteSessions VoteSession[]
+
+  @@index([type])
+  @@index([budget])
+  @@index([district])
+  @@map("idea")
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  ideaId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  idea Idea @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, ideaId])
+  @@index([userId])
+  @@index([ideaId])
+  @@map("favorite")
+}
+
+model Couple {
+  id         String       @id @default(cuid())
+  inviteToken String?      @unique
+  status     CoupleStatus @default(pending)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  members CoupleMember[]
+
+  @@map("couple")
+}
+
+model CoupleMember {
+  id        String      @id @default(cuid())
+  coupleId  String
+  userId    String
+  role      CoupleRole  @default(invited)
+  joinedAt  DateTime?
+  createdAt DateTime    @default(now())
+
+  couple Couple @relation(fields: [coupleId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([coupleId, userId])
+  @@index([coupleId])
+  @@index([userId])
+  @@map("couple_member")
+}
+
+model VoteSession {
+  id        String   @id @default(cuid())
+  ideaId    String
+  createdAt DateTime @default(now())
+
+  idea  Idea  @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  votes Vote[]
+
+  @@index([ideaId])
+  @@map("vote_session")
+}
+
+model Vote {
+  id            String    @id @default(cuid())
+  voteSessionId String
+  userId        String
+  value         VoteValue
+  createdAt     DateTime  @default(now())
+
+  voteSession VoteSession @relation(fields: [voteSessionId], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([voteSessionId, userId])
+  @@index([voteSessionId])
+  @@index([userId])
+  @@map("vote")
+}
+
+// --- Enums (valeurs fixes, type-safety) ---
+enum Gender {
+  male
+  female
+  other
+}
+
+enum Budget {
+  cheap   // €
+  medium  // €€
+  premium // €€€
+}
+
+enum IdeaType {
+  bouffe
+  boire
+  activite
+}
+
+enum CoupleStatus {
+  pending  // invitation envoyée
+  active   // 2 membres acceptés
+}
+
+enum CoupleRole {
+  inviter
+  invited
+}
+
+enum VoteValue {
+  yes
+  no
 }

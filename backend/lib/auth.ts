@@ -12,6 +12,38 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
 
+  user: {
+    additionalFields: {
+      age: {
+        type: "number",
+        required: false,
+        input: true,
+      },
+      gender: {
+        type: "string",
+        required: false,
+        input: true,
+      },
+      avatarPlaceholder: {
+        type: "string",
+        required: false,
+        input: true,
+      },
+      preferredBudget: {
+        type: "string",
+        required: false,
+        defaultValue: "€€",
+        input: true,
+      },
+      preferredDistance: {
+        type: "number",
+        required: false,
+        defaultValue: 5,
+        input: true,
+      },
+    },
+  },
+
   emailAndPassword: {
     enabled: true,
     autoSignIn: false,
