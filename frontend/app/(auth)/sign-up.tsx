@@ -1,139 +1,196 @@
-import { useMutation } from "@tanstack/react-query";
-import { Link, useRouter } from "expo-router";
-import { useState } from "react";
-import { ActivityIndicator, Pressable, Text, TextInput, View } from "react-native";
+import { useForm } from "@tanstack/react-form";
+import { Link } from "expo-router";
+import {
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
+import { Input } from "@/components/ui/input";
+import { createZodValidator } from "@/lib/zod-form-adapter";
+import { useSignUpMutation } from "@/hooks/use-sign-up-mutation";
+import {
+  signUpSchema,
+  validateField,
+  type SignUpInput,
+} from "@/schemas/signUpSchema";
 
-import { signUp } from "@/lib/auth-client";
-import { signUpSchema, type SignUpInput } from "@/lib/schemas/auth";
+// ─── Default values ─────────────────────────────────────────────────────────
 
-type FormErrors = Partial<Record<keyof SignUpInput, string>>;
+const DEFAULT_VALUES: SignUpInput = {
+  name: "",
+  email: "",
+  password: "",
+};
 
-export default function SignUpScreen() {
-  const router = useRouter();
-  const [values, setValues] = useState<SignUpInput>({
-    name: "",
-    email: "",
-    password: "",
-  });
-  const [fieldErrors, setFieldErrors] = useState<FormErrors>({});
-  const [serverError, setServerError] = useState<string | null>(null);
+const signUpValidator = createZodValidator(signUpSchema);
 
-  const signUpMutation = useMutation({
-    mutationFn: async (input: SignUpInput) => {
-      const result = await signUp.email({
-        name: input.name,
-        email: input.email,
-        password: input.password,
-      });
+// ─── FormField component ─────────────────────────────────────────────────────
 
-      if (result.error) {
-        throw new Error(result.error.message ?? "Inscription impossible");
-      }
-
-      return result;
-    },
-    onSuccess: () => {
-      router.replace("/sign-in");
-    },
-    onError: (error) => {
-      setServerError(error.message);
-    },
-  });
-
-  const updateField = (field: keyof SignUpInput, value: string) => {
-    setValues((prev) => ({ ...prev, [field]: value }));
-    setFieldErrors((prev) => ({ ...prev, [field]: undefined }));
-    setServerError(null);
-  };
-
-  const submit = () => {
-    const payload: SignUpInput = {
-      name: values.name.trim(),
-      email: values.email.trim().toLowerCase(),
-      password: values.password,
+type FormFieldProps = React.ComponentProps<typeof Input> & {
+  field: {
+    state: {
+      value: string;
+      meta: { errors: (string | null | undefined)[]; isBlurred: boolean };
     };
-
-    const parsed = signUpSchema.safeParse(payload);
-    if (!parsed.success) {
-      const errors = parsed.error.flatten().fieldErrors;
-      setFieldErrors({
-        name: errors.name?.[0],
-        email: errors.email?.[0],
-        password: errors.password?.[0],
-      });
-      return;
-    }
-
-    setFieldErrors({});
-    setServerError(null);
-    signUpMutation.mutate(parsed.data);
+    handleChange: (value: string) => void;
+    handleBlur: () => void;
+    name: string;
   };
+  label: string;
+};
+
+function SignUpFormField({ field, label, ...inputProps }: FormFieldProps) {
+  const { state, handleChange, handleBlur } = field;
+  const error = state.meta.errors?.[0];
+  const hasError = Boolean(error);
 
   return (
-    <View className="flex-1 justify-center px-6 gap-2.5">
-      <Text className="text-[28px] font-bold leading-8">Creer un compte</Text>
-      <Text className="opacity-80 mb-4">
-        Inscription avec nom, email et mot de passe
-      </Text>
+    <>
+      <Input
+        value={state.value}
+        onChangeText={handleChange}
+        onBlur={handleBlur}
+        placeholder={label}
+        placeholderTextColor="#9ca3af"
+        className={`rounded-xl ${
+          hasError ? "border-red-500" : "border-gray-400"
+        }`}
+        {...inputProps}
+      />
+      {error ? (
+        <Text className="mt-0.5 text-sm text-red-500">{error}</Text>
+      ) : null}
+    </>
+  );
+}
 
-      <View className="gap-2.5">
-        <TextInput
-          value={values.name}
-          onChangeText={(text) => updateField("name", text)}
-          placeholder="Nom"
-          autoCapitalize="words"
-          className="border border-gray-400 rounded-xl px-3.5 py-3 text-base"
-        />
-        {fieldErrors.name ? (
-          <Text className="text-red-600 text-sm">{fieldErrors.name}</Text>
-        ) : null}
+// ─── Screen ──────────────────────────────────────────────────────────────────
 
-        <TextInput
-          value={values.email}
-          onChangeText={(text) => updateField("email", text)}
-          placeholder="Email"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          autoCorrect={false}
-          className="border border-gray-400 rounded-xl px-3.5 py-3 text-base"
-        />
-        {fieldErrors.email ? (
-          <Text className="text-red-600 text-sm">{fieldErrors.email}</Text>
-        ) : null}
+export default function SignUpScreen() {
+  const signUpMutation = useSignUpMutation();
 
-        <TextInput
-          value={values.password}
-          onChangeText={(text) => updateField("password", text)}
-          placeholder="Mot de passe (6 caracteres min)"
-          secureTextEntry
-          autoCapitalize="none"
-          autoCorrect={false}
-          className="border border-gray-400 rounded-xl px-3.5 py-3 text-base"
-        />
-        {fieldErrors.password ? (
-          <Text className="text-red-600 text-sm">{fieldErrors.password}</Text>
-        ) : null}
+  const form = useForm({
+    defaultValues: DEFAULT_VALUES,
+    validators: {
+      onSubmit: ({ value }) => signUpValidator(value) ?? null,
+    },
+    onSubmit: async ({ value }) => {
+      const payload = signUpSchema.parse(value);
+      signUpMutation.mutate(payload);
+    },
+  });
 
-        {serverError ? (
-          <Text className="text-red-600 text-sm">{serverError}</Text>
-        ) : null}
+  return (
+    <KeyboardAvoidingView
+      className="flex-1"
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+    >
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingHorizontal: 24,
+          paddingVertical: 32,
+        }}
+        contentInsetAdjustmentBehavior="automatic"
+        keyboardShouldPersistTaps="handled"
+      >
+        <Text className="text-[28px] font-bold leading-8">Créer un compte</Text>
+        <Text className="mb-4 opacity-80">
+          Inscription avec nom, email et mot de passe
+        </Text>
 
-        <Pressable
-          onPress={submit}
-          disabled={signUpMutation.isPending}
-          className={`mt-2.5 bg-primary rounded-xl py-3.5 items-center ${signUpMutation.isPending ? "opacity-70" : ""}`}
-        >
-          {signUpMutation.isPending ? (
-            <ActivityIndicator color="#ffffff" />
-          ) : (
-            <Text className="text-white font-semibold">S'inscrire</Text>
-          )}
-        </Pressable>
+        <View className="gap-2.5">
+          <form.Field
+            name="name"
+            validators={{
+              onChange: ({ value, fieldApi }) =>
+                fieldApi.state.meta.isBlurred || form.state.submissionAttempts > 0
+                  ? validateField("name", value) ?? null
+                  : null,
+            }}
+          >
+            {(field) => (
+              <SignUpFormField
+                field={field}
+                label="Nom"
+                autoCapitalize="words"
+              />
+            )}
+          </form.Field>
 
-        <Link href="/sign-in">
-          <Text className="text-base text-primary">Deja un compte ? Se connecter</Text>
-        </Link>
-      </View>
-    </View>
+          <form.Field
+            name="email"
+            validators={{
+              onChange: ({ value, fieldApi }) =>
+                fieldApi.state.meta.isBlurred || form.state.submissionAttempts > 0
+                  ? validateField("email", value) ?? null
+                  : null,
+            }}
+          >
+            {(field) => (
+              <SignUpFormField
+                field={field}
+                label="Email"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+            )}
+          </form.Field>
+
+          <form.Field
+            name="password"
+            validators={{
+              onChange: ({ value, fieldApi }) =>
+                fieldApi.state.meta.isBlurred || form.state.submissionAttempts > 0
+                  ? validateField("password", value) ?? null
+                  : null,
+            }}
+          >
+            {(field) => (
+              <SignUpFormField
+                field={field}
+                label="Mot de passe (6 caractères min)"
+                secureTextEntry
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+            )}
+          </form.Field>
+
+          {signUpMutation.error ? (
+            <Text className="text-sm text-red-500">
+              {signUpMutation.error.message}
+            </Text>
+          ) : null}
+
+          <Pressable
+            onPress={() => form.handleSubmit()}
+            disabled={signUpMutation.isPending}
+            className={`mt-2.5 items-center rounded-xl bg-primary py-3.5 ${
+              signUpMutation.isPending ? "opacity-70" : ""
+            }`}
+          >
+            {signUpMutation.isPending ? (
+              <ActivityIndicator color="#ffffff" />
+            ) : (
+              <Text className="font-semibold text-white">S&apos;inscrire</Text>
+            )}
+          </Pressable>
+
+          <Link href="/sign-in">
+            <Text className="text-base text-primary">
+              Déjà un compte ? Se connecter
+            </Text>
+          </Link>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }

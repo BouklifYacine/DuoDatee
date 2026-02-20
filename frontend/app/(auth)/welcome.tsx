@@ -27,7 +27,7 @@ export default function AuthWelcomeScreen() {
           <Text className="flex-1 text-center text-xl font-semibold text-tertiary">Connectez vous</Text>
         </Button>
 
-        <Button className="w-full h-16 rounded-4xl items-center justify-center bg-white border border-[#D4838F]" onPress={() => router.push("/sign-in")}>
+        <Button className="w-full h-16 rounded-4xl items-center justify-center bg-white border border-[#D4838F]" onPress={() => router.push("/sign-up")}>
           <Text className="flex-1 text-center text-xl font-semibold text-[#D4838F]">S'inscrire</Text>
         </Button>
       </View>
