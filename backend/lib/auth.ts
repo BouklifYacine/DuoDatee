@@ -37,7 +37,7 @@ export const auth = betterAuth({
       preferredBudget: {
         type: "string",
         required: false,
-        defaultValue: "€€",
+        defaultValue: "medium",
         input: true,
       },
       preferredDistance: {

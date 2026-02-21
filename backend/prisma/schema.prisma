@@ -133,10 +133,16 @@ model Favorite {
 
 model Couple {
   id         String       @id @default(cuid())
-  inviteToken String?      @unique
+  inviteToken String?     @unique
+  inviteCode  String?     @unique // Code court partageable (ex: ABC123)
   status     CoupleStatus @default(pending)
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
+
+  // Onboarding couple
+  relationshipDuration RelationshipDuration?
+  relationshipStatus   RelationshipStatus?
+  livingSituation      LivingSituation?
 
   members CoupleMember[]
 
@@ -210,6 +216,28 @@ enum IdeaType {
 enum CoupleStatus {
   pending  // invitation envoyée
   active   // 2 membres acceptés
+}
+
+enum RelationshipDuration {
+  less_than_6m  // Moins de 6 mois
+  six_months_1y // 6 mois - 1 an
+  one_years_3y  // 1 an - 3 ans
+  three_years_5y // 3 ans - 5 ans
+  five_years_10y // 5 ans - 10 ans
+  ten_years_plus // 10 ans et plus
+}
+
+enum RelationshipStatus {
+  couple   // En couple
+  fiances  // Fiancés
+  pacses   // PACSés
+  maries   // Mariés
+}
+
+enum LivingSituation {
+  together       // Ensemble
+  separate_close // Séparés mais pas très loin
+  separate_far    // Séparés et loin
 }
 
 enum CoupleRole {

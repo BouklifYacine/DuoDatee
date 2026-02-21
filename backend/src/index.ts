@@ -2,8 +2,13 @@ import "dotenv/config";
 import { Hono } from "hono";
 import { auth } from "../lib/auth";
 import { cors } from "hono/cors";
+import {
+  authMiddleware,
+  requireAuth,
+  type AuthVariables,
+} from "./middleware/AuthMiddleware";
 
-const app = new Hono();
+const app = new Hono<{ Variables: AuthVariables }>();
 
 const allowedOrigins = [
   "http://localhost:3000",
@@ -35,6 +40,8 @@ app.use(
     credentials: true,
   }),
 );
+
+app.use("/onboarding/*", authMiddleware);
 
 app.get("/", (c) => {
   return c.text("Hello Hono!");
