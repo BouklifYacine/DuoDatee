@@ -26,9 +26,10 @@ model User {
   avatarPlaceholder String?
 
   // Onboarding — Préférences (étape 2)
-  preferredTypes    IdeaType[]  @default([bouffe, boire, activite])
-  preferredBudget   Budget?     @default(medium)
-  preferredDistance Int?        @default(5)
+  preferredTypes         IdeaType[]  @default([bouffe, boire, activite])
+  preferredBudget        Budget?     @default(medium)
+  preferredDistance      Int?        @default(5)
+  hasCompletedOnboarding Boolean     @default(false)
 
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt

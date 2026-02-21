@@ -29,6 +29,11 @@ export const auth = betterAuth({
         required: false,
         input: true,
       },
+      preferredTypes: {
+        type: "string[]",
+        required: false,
+        input: true,
+      },
       preferredBudget: {
         type: "string",
         required: false,
@@ -39,6 +44,12 @@ export const auth = betterAuth({
         type: "number",
         required: false,
         defaultValue: 5,
+        input: true,
+      },
+      hasCompletedOnboarding: {
+        type: "boolean",
+        required: false,
+        defaultValue: false,
         input: true,
       },
     },

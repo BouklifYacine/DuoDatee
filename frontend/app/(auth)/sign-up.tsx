@@ -55,9 +55,9 @@ function SignUpFormField({ field, label, ...inputProps }: FormFieldProps) {
         onChangeText={handleChange}
         onBlur={handleBlur}
         placeholder={label}
-        placeholderTextColor="#9ca3af"
-        className={`rounded-xl ${
-          hasError ? "border-red-500" : "border-gray-400"
+        placeholderTextColor="rgba(255,255,255,0.7)"
+        className={`rounded-xl bg-white/10 text-white pl-4 ${
+          hasError ? "border-red-500" : "border-white/60"
         }`}
         {...inputProps}
       />
@@ -86,7 +86,7 @@ export default function SignUpScreen() {
 
   return (
     <KeyboardAvoidingView
-      className="flex-1"
+      className="flex-1 bg-primary"
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
     >
@@ -94,14 +94,15 @@ export default function SignUpScreen() {
         className="flex-1"
         contentContainerStyle={{
           flexGrow: 1,
+          justifyContent: "center",
           paddingHorizontal: 24,
           paddingVertical: 32,
         }}
         contentInsetAdjustmentBehavior="automatic"
         keyboardShouldPersistTaps="handled"
       >
-        <Text className="text-[28px] font-bold leading-8">Créer un compte</Text>
-        <Text className="mb-4 opacity-80">
+        <Text className="text-[28px] font-bold leading-8 text-white">Créer un compte</Text>
+        <Text className="mb-4 opacity-80 text-white">
           Inscription avec nom, email et mot de passe
         </Text>
 
@@ -173,19 +174,19 @@ export default function SignUpScreen() {
           <Pressable
             onPress={() => form.handleSubmit()}
             disabled={signUpMutation.isPending}
-            className={`mt-2.5 items-center rounded-xl bg-primary py-3.5 ${
+            className={`mt-2.5 items-center justify-center h-16 rounded-4xl bg-white ${
               signUpMutation.isPending ? "opacity-70" : ""
             }`}
           >
             {signUpMutation.isPending ? (
-              <ActivityIndicator color="#ffffff" />
+              <ActivityIndicator color="#8B3A52" />
             ) : (
-              <Text className="font-semibold text-white">S&apos;inscrire</Text>
+              <Text className="font-semibold text-primary text-xl">S&apos;inscrire</Text>
             )}
           </Pressable>
 
           <Link href="/sign-in">
-            <Text className="text-base text-primary">
+            <Text className="text-base text-white">
               Déjà un compte ? Se connecter
             </Text>
           </Link>

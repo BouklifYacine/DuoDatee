@@ -58,9 +58,9 @@ function SignInFormField({ field, label, ...inputProps }: FormFieldProps) {
         onChangeText={handleChange}
         onBlur={handleBlur}
         placeholder={label}
-        placeholderTextColor="#9ca3af"
-        className={`rounded-xl ${
-          hasError ? "border-red-500" : "border-gray-400"
+        placeholderTextColor="rgba(255,255,255,0.7)"
+        className={`rounded-xl bg-white/10 text-white pl-4 ${
+          hasError ? "border-red-500" : "border-white/60"
         }`}
         {...inputProps}
       />
@@ -96,7 +96,7 @@ export default function SignInScreen() {
 
   return (
     <KeyboardAvoidingView
-      className="flex-1"
+      className="flex-1 bg-primary"
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
     >
@@ -111,7 +111,7 @@ export default function SignInScreen() {
         contentInsetAdjustmentBehavior="automatic"
         keyboardShouldPersistTaps="handled"
       >
-        <Text className="text-[28px] font-bold leading-8">Se connecter</Text>
+        <Text className="text-[28px] font-bold leading-8 text-white">Se connecter</Text>
 
         <View className="mt-4 gap-2.5">
           <form.Field
@@ -163,44 +163,44 @@ export default function SignInScreen() {
           <Pressable
             onPress={() => form.handleSubmit()}
             disabled={signInMutation.isPending || googleSignInMutation.isPending}
-            className={`mt-2.5 items-center justify-center rounded-xl bg-primary py-3.5 ${
+            className={`mt-2.5 items-center justify-center h-16 rounded-4xl bg-white ${
               signInMutation.isPending || googleSignInMutation.isPending
                 ? "opacity-70"
                 : ""
             }`}
           >
             {signInMutation.isPending ? (
-              <ActivityIndicator color="#ffffff" />
+              <ActivityIndicator color="#8B3A52" />
             ) : (
-              <Text className="font-semibold text-white">Se connecter</Text>
+              <Text className="font-semibold text-primary text-xl">Se connecter</Text>
             )}
           </Pressable>
 
           <Pressable
             onPress={handleGoogleSignIn}
             disabled={signInMutation.isPending || googleSignInMutation.isPending}
-            className={`flex-row items-center justify-center gap-2 rounded-xl border border-primary py-3.5 ${
+            className={`flex-row items-center justify-center gap-2 h-16 rounded-4xl bg-white ${
               signInMutation.isPending || googleSignInMutation.isPending
                 ? "opacity-70"
                 : ""
             }`}
           >
             {googleSignInMutation.isPending ? (
-              <ActivityIndicator color="#0a7ea4" size="small" />
+              <ActivityIndicator color="#8B3A52" size="small" />
             ) : (
               <MaterialCommunityIcons
                 name="google"
                 size={22}
-                color="#0a7ea4"
+                color="#8B3A52"
               />
             )}
-            <Text className="font-semibold text-primary">
+            <Text className="font-semibold text-primary text-xl">
               Continuer avec Google
             </Text>
           </Pressable>
 
           <Link href="/sign-up">
-            <Text className="text-base text-primary">
+            <Text className="text-base text-white">
               Pas de compte ? S&apos;inscrire
             </Text>
           </Link>
