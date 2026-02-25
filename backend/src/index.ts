@@ -7,6 +7,7 @@ import {
   type AuthVariables,
 } from "./middleware/AuthMiddleware";
 import onboardingUserRoutes from "./features/onboarding/onboardinguser/user.routes";
+import onboardingPreferencesRoutes from "./features/onboarding/onboardingpreferences/preferences.routes";
 
 const app = new Hono<{ Variables: AuthVariables }>();
 
@@ -61,5 +62,6 @@ app.on(["POST", "GET"], "/api/auth/*", async (c) => {
 });
 
 app.route("/api/onboarding", onboardingUserRoutes);
+app.route("/api/onboarding/preferences", onboardingPreferencesRoutes);
 
 export default app;
