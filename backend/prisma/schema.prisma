@@ -27,7 +27,7 @@ model User {
 
   // Onboarding — Préférences (étape 2)
   preferredTypes         IdeaType[]  @default([bouffe, boire, activite])
-  preferredBudget        Budget?     @default(medium)
+  preferredBudget        Budget?     @default(moyen)
   preferredDistance      Int?        @default(5)
   hasCompletedOnboarding Boolean     @default(false)
 
@@ -196,14 +196,14 @@ model Vote {
 
 // --- Enums (valeurs fixes, type-safety) ---
 enum Gender {
-  male
-  female
+  homme
+  femme
 }
 
 enum Budget {
-  cheap   // €
-  medium  // €€
-  premium // €€€
+  economique // €
+  moyen      // €€
+  premium    // €€€
 }
 
 enum IdeaType {
@@ -218,25 +218,25 @@ enum CoupleStatus {
 }
 
 enum RelationshipDuration {
-  less_than_6m  // Moins de 6 mois
-  six_months_1y // 6 mois - 1 an
-  one_years_3y  // 1 an - 3 ans
-  three_years_5y // 3 ans - 5 ans
-  five_years_10y // 5 ans - 10 ans
-  ten_years_plus // 10 ans et plus
+  moins_de_6m   // Moins de 6 mois
+  six_mois_un_an // 6 mois - 1 an
+  un_trois_ans   // 1 an - 3 ans
+  trois_cinq_ans // 3 ans - 5 ans
+  cinq_dix_ans   // 5 ans - 10 ans
+  dix_ans_plus   // 10 ans et plus
 }
 
 enum RelationshipStatus {
-  couple   // En couple
-  fiances  // Fiancés
-  pacses   // PACSés
-  maries   // Mariés
+  en_couple // En couple
+  fiances   // Fiancés
+  pacses    // PACSés
+  maries    // Mariés
 }
 
 enum LivingSituation {
-  together       // Ensemble
-  separate_close // Séparés mais pas très loin
-  separate_far    // Séparés et loin
+  ensemble       // Ensemble
+  separes_proche // Séparés mais pas très loin
+  separes_loin   // Séparés et loin
 }
 
 enum CoupleRole {

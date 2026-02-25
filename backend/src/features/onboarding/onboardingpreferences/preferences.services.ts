@@ -7,7 +7,7 @@ export const PreferencesService = {
       where: { id: userId },
       data: {
         preferredTypes: data.preferredTypes,
-        preferredBudget: data.preferredBudget as "cheap" | "medium" | "premium",
+        preferredBudget: data.preferredBudget,
         preferredDistance: data.preferredDistance,
       },
       select: {
