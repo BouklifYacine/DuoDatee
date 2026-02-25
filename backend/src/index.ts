@@ -4,9 +4,9 @@ import { auth } from "../lib/auth";
 import { cors } from "hono/cors";
 import {
   authMiddleware,
-  requireAuth,
   type AuthVariables,
 } from "./middleware/AuthMiddleware";
+import onboardingUserRoutes from "./features/onboarding/onboardinguser/user.routes";
 
 const app = new Hono<{ Variables: AuthVariables }>();
 
@@ -41,7 +41,7 @@ app.use(
   }),
 );
 
-app.use("/onboarding/*", authMiddleware);
+app.use("/api/*", authMiddleware);
 
 app.get("/", (c) => {
   return c.text("Hello Hono!");
@@ -59,5 +59,7 @@ app.on(["POST", "GET"], "/api/auth/*", async (c) => {
     return c.json({ error: "Internal Server Error" }, 500);
   }
 });
+
+app.route("/api/onboarding", onboardingUserRoutes);
 
 export default app;

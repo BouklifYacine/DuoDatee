@@ -198,7 +198,6 @@ model Vote {
 enum Gender {
   male
   female
-  other
 }
 
 enum Budget {
