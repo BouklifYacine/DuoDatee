@@ -3,49 +3,47 @@ import type { UpdateCoupleInput } from "./couple.types";
 
 export const CoupleService = {
   async updateOnboarding(userId: string, data: UpdateCoupleInput) {
-    const existingMember = await prisma.coupleMember.findFirst({
-      where: { userId },
-      include: { couple: true },
-    });
-
-    if (existingMember) {
-      return prisma.couple.update({
-        where: { id: existingMember.coupleId },
-        data: {
-          relationshipDuration: data.relationshipDuration,
-          relationshipStatus: data.relationshipStatus,
-          livingSituation: data.livingSituation,
-        },
-        select: {
-          id: true,
-          relationshipDuration: true,
-          relationshipStatus: true,
-          livingSituation: true,
-          status: true,
-        },
+    return prisma.$transaction(async (tx) => {
+      const existingMember = await tx.coupleMember.findFirst({
+        where: { userId },
+        include: { couple: true },
       });
-    }
 
-    return prisma.couple.create({
-      data: {
-        status: "pending",
-        relationshipDuration: data.relationshipDuration,
-        relationshipStatus: data.relationshipStatus,
-        livingSituation: data.livingSituation,
-        members: {
-          create: {
-            userId,
-            role: "inviter",
+      let couple;
+
+      if (existingMember) {
+        couple = await tx.couple.update({
+          where: { id: existingMember.coupleId },
+          data: {
+            relationshipDuration: data.relationshipDuration,
+            relationshipStatus: data.relationshipStatus,
+            livingSituation: data.livingSituation,
           },
-        },
-      },
-      select: {
-        id: true,
-        relationshipDuration: true,
-        relationshipStatus: true,
-        livingSituation: true,
-        status: true,
-      },
+        });
+      } else {
+        couple = await tx.couple.create({
+          data: {
+            status: "pending",
+            relationshipDuration: data.relationshipDuration,
+            relationshipStatus: data.relationshipStatus,
+            livingSituation: data.livingSituation,
+            members: {
+              create: {
+                userId,
+                role: "inviter",
+              },
+            },
+          },
+        });
+      }
+
+      // Marquer l'onboarding comme terminé
+      await tx.user.update({
+        where: { id: userId },
+        data: { hasCompletedOnboarding: true },
+      });
+
+      return couple;
     });
   },
 };
