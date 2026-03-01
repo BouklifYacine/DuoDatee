@@ -1,6 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import { useRouter } from "expo-router";
-import { View, Text } from "react-native";
+import { View, Text, Alert } from "react-native";
 import { StepContainer } from "@/components/onboarding";
 import {
   useOnboarding,
@@ -25,15 +25,32 @@ export default function Step2Preferences() {
       preferredDistance: 10 as number,
     },
     onSubmit: async ({ value }) => {
+      console.log("[Onboarding Debug - Step 2] onSubmit triggered with values:", value);
       const result = preferencesSchema.safeParse(value);
-      if (!result.success) return;
-      await updatePreferences(result.data as { preferredTypes: PreferredType[]; preferredBudget: PreferredBudget; preferredDistance: number });
-      router.push("/step-3-couple");
+      if (!result.success) {
+        console.warn("[Onboarding Debug - Step 2] Preferences validation error:", result.error);
+        Alert.alert("Erreur de validation", "Veuillez vérifier vos préférences.");
+        return;
+      }
+      try {
+        console.log("[Onboarding Debug - Step 2] Calling updatePreferences mutation...");
+        await updatePreferences(result.data as { preferredTypes: PreferredType[]; preferredBudget: PreferredBudget; preferredDistance: number });
+        console.log("[Onboarding Debug - Step 2] Mutation success, redirecting...");
+        router.push("/step-3-couple");
+      } catch (err) {
+        console.error("[Onboarding Debug - Step 2] updatePreferences failed:", err);
+        Alert.alert(
+          "Erreur",
+          "Impossible de sauvegarder vos préférences. Vérifiez votre connexion et réessayez."
+        );
+      }
     },
   });
 
   const { preferredTypes, preferredBudget, preferredDistance } = form.state.values;
   const canSubmit = preferredTypes.length > 0 && !!preferredBudget && preferredDistance >= 1 && preferredDistance <= 100;
+
+  console.log(`[Onboarding Debug - Step 2] Render values: types=${preferredTypes.length}, budget=${preferredBudget}, distance=${preferredDistance}, canSubmit=${canSubmit}`);
 
   const toggleType = (type: PreferredType) => {
     const current = form.state.values.preferredTypes;
@@ -50,8 +67,15 @@ export default function Step2Preferences() {
       totalSteps={3}
       labels={LABELS}
       onBack={() => router.back()}
-      onNext={() => form.handleSubmit()}
-      isNextDisabled={!canSubmit}
+      onNext={() => {
+        console.log("[Onboarding Debug - Step 2] NavigationButtons onNext clicked.");
+        if (!canSubmit) {
+          Alert.alert("Préférences incomplètes", "Veuillez sélectionner au moins une activité et un budget.");
+          console.log("[Onboarding Debug - Step 2] Form is invalid based on canSubmit.");
+        }
+        form.handleSubmit();
+      }}
+      isNextDisabled={isUpdating}
       isLoading={isUpdating}
     >
       <View className="flex-1 bg-white px-1">

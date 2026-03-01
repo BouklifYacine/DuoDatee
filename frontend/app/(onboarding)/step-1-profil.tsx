@@ -1,8 +1,8 @@
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
 import { useRouter } from "expo-router";
-import { View, Text } from "react-native";
-import { StepContainer } from "@/components/onboarding";
+import { View, Text, Alert } from "react-native";
+import { StepContainer, NavigationButtons } from "@/components/onboarding";
 import { useOnboarding, ValidatedTextField, GenderSelector } from "@/features/onboarding";
 import { profilSchema } from "@/features/onboarding/schemas";
 
@@ -23,15 +23,27 @@ export default function Step1Profil() {
       gender: undefined as "homme" | "femme" | undefined,
     },
     onSubmit: async ({ value }) => {
-      const result = profilSchema.safeParse({ ...value, age: parseInt(value.age, 10) });
-      if (!result.success) return;
-      await updateProfil(result.data);
-      router.push("/step-2-preferences");
+      console.log("[Onboarding Debug] onSubmit triggered with values:", value);
+      const parsed = profilSchema.safeParse({ ...value, age: parseInt(value.age, 10) });
+      if (!parsed.success) {
+        console.warn("[Onboarding Debug] Validation error:", parsed.error);
+        Alert.alert("Erreur de validation", "Veuillez vérifier vos informations.");
+        return;
+      }
+      try {
+        console.log("[Onboarding Debug] Calling updateProfil mutation...");
+        await updateProfil(parsed.data);
+        console.log("[Onboarding Debug] Mutation success, redirecting...");
+        router.push("/step-2-preferences");
+      } catch (err) {
+        console.error("[Onboarding Debug] updateProfil failed:", err);
+        Alert.alert(
+          "Erreur",
+          "Impossible de sauvegarder votre profil. Vérifiez votre connexion et réessayez."
+        );
+      }
     },
   });
-
-  const { name, age, gender } = form.state.values;
-  const canSubmit = !nameSchema.safeParse(name).error && !ageSchema.safeParse(age).error && !!gender;
 
   return (
     <StepContainer
@@ -40,8 +52,9 @@ export default function Step1Profil() {
       labels={LABELS}
       showBackButton={false}
       onNext={() => form.handleSubmit()}
-      isNextDisabled={!canSubmit}
+      isNextDisabled={false} // Always allow click to debug
       isLoading={isUpdating}
+      showNavigationButtons={false}
     >
       <View className="flex-1 bg-white px-1">
         <View className="mb-8 mt-2">
@@ -74,6 +87,33 @@ export default function Step1Profil() {
             />
           )}
         </form.Field>
+
+        <form.Subscribe
+          selector={(state) => ({ values: state.values, canSubmit: state.canSubmit, isSubmitting: state.isSubmitting })}
+        >
+          {({ values }) => {
+            const { name, age, gender } = values;
+            const canSubmitLocal = !nameSchema.safeParse(name).error && !ageSchema.safeParse(age).error && !!gender;
+
+            return (
+              <NavigationButtons
+                onNext={() => {
+                  console.log("[Onboarding Debug] NavigationButtons onNext clicked. canSubmitLocal:", canSubmitLocal);
+                  console.log(`[Onboarding Debug] Values at click: name="${name}", age="${age}", gender="${gender}"`);
+                  if (!canSubmitLocal) {
+                    Alert.alert("Formulaire incomplet", "Veuillez remplir correctement tous les champs.");
+                    return;
+                  }
+                  form.handleSubmit();
+                }}
+                isNextDisabled={isUpdating}
+                isLoading={isUpdating}
+                showBackButton={false}
+                className="px-0 pt-2 pb-0"
+              />
+            );
+          }}
+        </form.Subscribe>
       </View>
     </StepContainer>
   );

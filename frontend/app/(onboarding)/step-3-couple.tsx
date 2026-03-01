@@ -1,7 +1,7 @@
 import { useForm } from "@tanstack/react-form";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { View, Text } from "react-native";
+import { View, Text, Alert } from "react-native";
 import { StepContainer } from "@/components/onboarding";
 import {
   useOnboarding,
@@ -55,22 +55,36 @@ export default function Step3Couple() {
       inviteCode: "" as string,
     },
     onSubmit: async ({ value }) => {
+      console.log("[Onboarding Debug - Step 3] onSubmit triggered with values:", value);
       try {
         if (value.hasCouple) {
           if (coupleMode === "create") {
             const r = createCoupleSchema.safeParse(value);
-            if (!r.success) return;
+            if (!r.success) {
+              console.warn("[Onboarding Debug - Step 3] Create couple validation error:", r.error);
+              Alert.alert("Erreur de validation", "Veuillez vérifier les informations du couple.");
+              return;
+            }
+            console.log("[Onboarding Debug - Step 3] Creating couple...");
             await createCouple(r.data);
           } else {
             const r = joinCoupleSchema.safeParse({ inviteCode: value.inviteCode });
-            if (!r.success) return;
+            if (!r.success) {
+              console.warn("[Onboarding Debug - Step 3] Join couple validation error:", r.error);
+              Alert.alert("Erreur de validation", "Code d'invitation invalide.");
+              return;
+            }
+            console.log("[Onboarding Debug - Step 3] Joining couple...");
             await joinCouple(r.data);
           }
         }
+        console.log("[Onboarding Debug - Step 3] Completing onboarding...");
         await completeOnboarding();
+        console.log("[Onboarding Debug - Step 3] Onboarding complete. Navigating to (tabs)...");
         router.replace("/(tabs)");
       } catch (err) {
-        console.error("Onboarding error:", err);
+        console.error("[Onboarding Debug - Step 3] Error during step 3 submission:", err);
+        Alert.alert("Erreur", "Une erreur est survenue. Veuillez réessayer.");
       }
     },
   });
@@ -82,6 +96,8 @@ export default function Step3Couple() {
     : coupleMode === "create"
       ? !!relationshipDuration && !!relationshipStatus && !!livingSituation
       : inviteCode.length === 6;
+
+  console.log(`[Onboarding Debug - Step 3] Render values: hasCouple=${hasCouple}, mode=${coupleMode}, canSubmit=${canSubmit}`);
 
   const resetCoupleFields = () => {
     form.setFieldValue("relationshipDuration", undefined);
@@ -96,8 +112,15 @@ export default function Step3Couple() {
       totalSteps={3}
       labels={LABELS}
       onBack={() => router.back()}
-      onNext={() => form.handleSubmit()}
-      isNextDisabled={!canSubmit}
+      onNext={() => {
+        console.log("[Onboarding Debug - Step 3] NavigationButtons onNext clicked.");
+        if (!canSubmit) {
+          Alert.alert("Informations incomplètes", "Veuillez remplir toutes les informations nécessaires.");
+          console.log("[Onboarding Debug - Step 3] Form is invalid based on canSubmit.");
+        }
+        form.handleSubmit();
+      }}
+      isNextDisabled={isUpdating}
       isLoading={isUpdating}
       nextLabel="Terminer 🎉"
     >

@@ -23,7 +23,13 @@ export function DistanceStepper({ value, onChange }: Props) {
 
                     <View className="items-center">
                         <TextInput
-                            className="text-3xl font-bold text-primary text-center w-24"
+                            style={{
+                                fontSize: 30,
+                                fontWeight: "bold",
+                                color: "#8B3A52",
+                                textAlign: "center",
+                                width: 96,
+                            }}
                             value={String(value)}
                             onChangeText={(t) => {
                                 const n = parseInt(t, 10);
