@@ -1,11 +1,13 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../index";
 import { prisma } from "../../../lib/prisma";
+import { updateProfilSchema, completeOnboardingSchema } from "../schemas/user.schema";
+import { updatePreferencesSchema } from "../schemas/preferences.schema";
 
 export const userRouter = router({
   // GET /api/trpc/user/getMe
   getMe: protectedProcedure.query(async ({ ctx }) => {
-    return prisma.user.findUnique({
+    const user = await prisma.user.findUnique({
       where: { id: ctx.user.id },
       select: {
         id: true,
@@ -19,19 +21,81 @@ export const userRouter = router({
         preferredDistance: true,
         hasCompletedOnboarding: true,
         createdAt: true,
+        coupleMembers: {
+          include: {
+            couple: true,
+          },
+        },
       },
     });
+
+    // Transformer pour inclure les infos du couple
+    if (user) {
+      const coupleMember = user.coupleMembers?.[0];
+      return {
+        ...user,
+        couple: coupleMember?.couple || null,
+        coupleMembers: undefined,
+      };
+    }
+
+    return user;
+  }),
+
+  // GET /api/trpc/user/getOnboardingStatus
+  getOnboardingStatus: protectedProcedure.query(async ({ ctx }) => {
+    const user = await prisma.user.findUnique({
+      where: { id: ctx.user.id },
+      select: {
+        name: true,
+        age: true,
+        gender: true,
+        preferredTypes: true,
+        preferredBudget: true,
+        preferredDistance: true,
+        hasCompletedOnboarding: true,
+        coupleMembers: {
+          include: {
+            couple: true,
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      return {
+        hasName: false,
+        hasAge: false,
+        hasGender: false,
+        hasPreferences: false,
+        hasCouple: false,
+        hasCompletedOnboarding: false,
+      };
+    }
+
+    const hasCouple = user.coupleMembers.some(
+      (member) => member.couple !== null && member.couple.status === "active"
+    );
+
+    const hasPreferences =
+      user.preferredTypes !== undefined &&
+      user.preferredTypes.length > 0 &&
+      user.preferredBudget !== undefined &&
+      user.preferredDistance !== undefined;
+
+    return {
+      hasName: user.name !== undefined && user.name !== null && user.name.length >= 3,
+      hasAge: user.age !== undefined && user.age !== null,
+      hasGender: user.gender !== undefined && user.gender !== null,
+      hasPreferences,
+      hasCouple,
+      hasCompletedOnboarding: user.hasCompletedOnboarding,
+    };
   }),
 
   // PATCH /api/trpc/user/updateProfil
   updateProfil: protectedProcedure
-    .input(
-      z.object({
-        name: z.string().min(3).max(20).trim(),
-        age: z.number().min(16).max(99).int().positive().optional(),
-        gender: z.enum(["homme", "femme"]).optional(),
-      })
-    )
+    .input(updateProfilSchema)
     .mutation(async ({ ctx, input }) => {
       return prisma.user.update({
         where: { id: ctx.user.id },
@@ -52,13 +116,7 @@ export const userRouter = router({
 
   // PATCH /api/trpc/user/updatePreferences
   updatePreferences: protectedProcedure
-    .input(
-      z.object({
-        preferredTypes: z.array(z.enum(["bouffe", "boire", "activite"])).optional(),
-        preferredBudget: z.enum(["economique", "moyen", "premium"]).optional(),
-        preferredDistance: z.number().min(1).max(100).optional(),
-      })
-    )
+    .input(updatePreferencesSchema)
     .mutation(async ({ ctx, input }) => {
       return prisma.user.update({
         where: { id: ctx.user.id },
@@ -77,16 +135,18 @@ export const userRouter = router({
     }),
 
   // PATCH /api/trpc/user/completeOnboarding
-  completeOnboarding: protectedProcedure.mutation(async ({ ctx }) => {
-    return prisma.user.update({
-      where: { id: ctx.user.id },
-      data: {
-        hasCompletedOnboarding: true,
-      },
-      select: {
-        id: true,
-        hasCompletedOnboarding: true,
-      },
-    });
-  }),
+  completeOnboarding: protectedProcedure
+    .input(completeOnboardingSchema)
+    .mutation(async ({ ctx }) => {
+      return prisma.user.update({
+        where: { id: ctx.user.id },
+        data: {
+          hasCompletedOnboarding: true,
+        },
+        select: {
+          id: true,
+          hasCompletedOnboarding: true,
+        },
+      });
+    }),
 });

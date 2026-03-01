@@ -26,7 +26,7 @@ export function useSignInMutation() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: authKeys.all });
-      router.replace("/(tabs)");
+      router.replace("/(auth)/check-status");
     },
   });
 }
@@ -40,7 +40,7 @@ export function useGoogleSignInMutation() {
     mutationFn: async () => {
       const result = await signIn.social({
         provider: "google",
-        callbackURL: "/(tabs)",
+        callbackURL: "/(auth)/check-status",
       });
 
       if (result.error) {
@@ -52,7 +52,7 @@ export function useGoogleSignInMutation() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: authKeys.all });
-      router.replace("/(tabs)");
+      router.replace("/(auth)/check-status");
     },
   });
 }
