@@ -1,5 +1,7 @@
 import { View, Text, Switch, Pressable } from "react-native";
 
+const PRIMARY = "#8B3A52";
+
 type CoupleMode = "create" | "join";
 
 type Props = {
@@ -35,21 +37,31 @@ export function CoupleModeToggle({
             {/* Tabs Créer / Rejoindre */}
             {hasCouple && (
                 <View className="flex-row mb-6 bg-gray-100 rounded-xl p-1">
-                    {(["create", "join"] as const).map((mode) => (
-                        <Pressable
-                            key={mode}
-                            className={`flex-1 py-3 px-4 rounded-lg ${coupleMode === mode ? "bg-white shadow-sm" : ""
-                                }`}
-                            onPress={() => onChangeMode(mode)}
-                        >
-                            <Text
-                                className={`text-center font-medium ${coupleMode === mode ? "text-primary" : "text-gray-500"
-                                    }`}
+                    {(["create", "join"] as const).map((mode) => {
+                        const isActive = coupleMode === mode;
+                        return (
+                            <Pressable
+                                key={mode}
+                                className="flex-1 py-3 px-4 rounded-lg"
+                                style={{
+                                    backgroundColor: isActive ? "#ffffff" : "transparent",
+                                    shadowColor: isActive ? "#000" : "transparent",
+                                    shadowOffset: { width: 0, height: 1 },
+                                    shadowOpacity: isActive ? 0.1 : 0,
+                                    shadowRadius: 2,
+                                    elevation: isActive ? 2 : 0,
+                                }}
+                                onPress={() => onChangeMode(mode)}
                             >
-                                {mode === "create" ? "✨ Créer" : "🔗 Rejoindre"}
-                            </Text>
-                        </Pressable>
-                    ))}
+                                <Text
+                                    className="text-center font-medium"
+                                    style={{ color: isActive ? PRIMARY : "#6b7280" }}
+                                >
+                                    {mode === "create" ? "✨ Créer" : "🔗 Rejoindre"}
+                                </Text>
+                            </Pressable>
+                        );
+                    })}
                 </View>
             )}
         </View>

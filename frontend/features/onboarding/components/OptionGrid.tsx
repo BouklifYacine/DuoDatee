@@ -1,5 +1,7 @@
 import { View, Text, Pressable } from "react-native";
 
+const PRIMARY = "#8B3A52";
+
 type Props<T extends string> = {
     label: string;
     options: readonly T[];
@@ -24,20 +26,24 @@ export function OptionGrid<T extends string>({
                 <Text className="text-base font-medium text-gray-700">{label}</Text>
                 {!!selected && <Text className="ml-2 text-sm text-green-500">✓</Text>}
             </View>
-            <View className="flex-row flex-wrap gap-2">
+            <View className="flex-row flex-wrap gap-3">
                 {options.map((opt) => {
                     const isSelected = selected === opt;
                     return (
                         <Pressable
                             key={opt}
-                            className={`min-h-12 px-3 py-2 rounded-xl border-2 flex-row items-center ${isSelected
-                                    ? "border-primary bg-primary/15"
-                                    : "border-gray-200 bg-gray-50"
-                                }`}
+                            className="min-h-12 px-3 py-2 rounded-xl border-2 flex-row items-center"
+                            style={{
+                                borderColor: isSelected ? PRIMARY : "#e5e7eb",
+                                backgroundColor: isSelected ? "rgba(139, 58, 82, 0.15)" : "#f9fafb",
+                            }}
                             onPress={() => onSelect(opt)}
                         >
                             <Text className="text-lg mr-2">{getIcon(opt)}</Text>
-                            <Text className={`font-medium ${isSelected ? "text-primary" : "text-gray-700"}`}>
+                            <Text
+                                className="font-medium"
+                                style={{ color: isSelected ? PRIMARY : "#374151" }}
+                            >
                                 {getLabel(opt)}
                             </Text>
                         </Pressable>

@@ -7,12 +7,14 @@ const TYPE_META: Record<PreferredType, { label: string; icon: string }> = {
     activite: { label: "Activité", icon: "🎯" },
 };
 
+const PRIMARY = "#8B3A52";
+
 type Props = {
     selected: string[];
     onToggle: (type: PreferredType) => void;
 };
 
-/** Sélection multi (max 3) des types d'activité */
+/** Sélection multi (max 3) des types d'activité — style identique au GenderSelector */
 export function ActivityTypeSelector({ selected, onToggle }: Props) {
     return (
         <View className="mb-6">
@@ -21,21 +23,25 @@ export function ActivityTypeSelector({ selected, onToggle }: Props) {
                 <Text className="text-sm text-gray-400">{selected.length}/3</Text>
             </View>
             <Text className="text-sm text-gray-500 mb-3">Sélectionnez jusqu'à 3 options</Text>
-            <View className="flex-row flex-wrap gap-3">
+            <View className="flex-row gap-4">
                 {PREFERRED_TYPES.map((type) => {
                     const isSelected = selected.includes(type);
                     const { label, icon } = TYPE_META[type];
                     return (
                         <Pressable
                             key={type}
-                            className={`min-h-12 px-4 py-2 rounded-full border-2 flex-row items-center ${isSelected
-                                    ? "border-primary bg-primary/15"
-                                    : "border-gray-200 bg-gray-50"
-                                }`}
+                            className="flex-1 min-h-[56px] flex-row items-center justify-center rounded-xl border-2"
+                            style={{
+                                borderColor: isSelected ? PRIMARY : "#e5e7eb",
+                                backgroundColor: isSelected ? "rgba(139, 58, 82, 0.15)" : "#f9fafb",
+                            }}
                             onPress={() => onToggle(type)}
                         >
                             <Text className="text-xl mr-2">{icon}</Text>
-                            <Text className={`font-medium ${isSelected ? "text-primary" : "text-gray-700"}`}>
+                            <Text
+                                className="text-base font-medium"
+                                style={{ color: isSelected ? PRIMARY : "#374151" }}
+                            >
                                 {label}
                             </Text>
                         </Pressable>

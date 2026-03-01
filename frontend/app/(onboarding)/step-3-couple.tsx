@@ -55,49 +55,32 @@ export default function Step3Couple() {
       inviteCode: "" as string,
     },
     onSubmit: async ({ value }) => {
-      console.log("[Onboarding Debug - Step 3] onSubmit triggered with values:", value);
       try {
         if (value.hasCouple) {
           if (coupleMode === "create") {
             const r = createCoupleSchema.safeParse(value);
             if (!r.success) {
-              console.warn("[Onboarding Debug - Step 3] Create couple validation error:", r.error);
               Alert.alert("Erreur de validation", "Veuillez vérifier les informations du couple.");
               return;
             }
-            console.log("[Onboarding Debug - Step 3] Creating couple...");
             await createCouple(r.data);
           } else {
             const r = joinCoupleSchema.safeParse({ inviteCode: value.inviteCode });
             if (!r.success) {
-              console.warn("[Onboarding Debug - Step 3] Join couple validation error:", r.error);
               Alert.alert("Erreur de validation", "Code d'invitation invalide.");
               return;
             }
-            console.log("[Onboarding Debug - Step 3] Joining couple...");
             await joinCouple(r.data);
           }
         }
-        console.log("[Onboarding Debug - Step 3] Completing onboarding...");
         await completeOnboarding();
-        console.log("[Onboarding Debug - Step 3] Onboarding complete. Navigating to (tabs)...");
         router.replace("/(tabs)");
       } catch (err) {
-        console.error("[Onboarding Debug - Step 3] Error during step 3 submission:", err);
+        console.error("[Onboarding] Step 3 error:", err);
         Alert.alert("Erreur", "Une erreur est survenue. Veuillez réessayer.");
       }
     },
   });
-
-  const { hasCouple, relationshipDuration, relationshipStatus, livingSituation, inviteCode } = form.state.values;
-
-  const canSubmit = !hasCouple
-    ? true
-    : coupleMode === "create"
-      ? !!relationshipDuration && !!relationshipStatus && !!livingSituation
-      : inviteCode.length === 6;
-
-  console.log(`[Onboarding Debug - Step 3] Render values: hasCouple=${hasCouple}, mode=${coupleMode}, canSubmit=${canSubmit}`);
 
   const resetCoupleFields = () => {
     form.setFieldValue("relationshipDuration", undefined);
@@ -107,82 +90,98 @@ export default function Step3Couple() {
   };
 
   return (
-    <StepContainer
-      currentStep={2}
-      totalSteps={3}
-      labels={LABELS}
-      onBack={() => router.back()}
-      onNext={() => {
-        console.log("[Onboarding Debug - Step 3] NavigationButtons onNext clicked.");
-        if (!canSubmit) {
-          Alert.alert("Informations incomplètes", "Veuillez remplir toutes les informations nécessaires.");
-          console.log("[Onboarding Debug - Step 3] Form is invalid based on canSubmit.");
-        }
-        form.handleSubmit();
+    <form.Subscribe selector={(s) => s.values}>
+      {(values) => {
+        const { hasCouple, relationshipDuration, relationshipStatus, livingSituation, inviteCode } = values;
+
+        const canSubmit = !hasCouple
+          ? true
+          : coupleMode === "create"
+            ? !!relationshipDuration && !!relationshipStatus && !!livingSituation
+            : inviteCode.length === 6;
+
+        return (
+          <StepContainer
+            currentStep={2}
+            totalSteps={3}
+            labels={LABELS}
+            onBack={() => router.back()}
+            onNext={() => {
+              if (!canSubmit) {
+                Alert.alert("Informations incomplètes", "Veuillez remplir toutes les informations nécessaires.");
+                return;
+              }
+              form.handleSubmit();
+            }}
+            isNextDisabled={isUpdating}
+            isLoading={isUpdating}
+            nextLabel="Terminer 🎉"
+          >
+            <View className="flex-1 bg-white px-1">
+              <View className="mb-6 mt-2">
+                <Text className="text-3xl font-bold text-gray-900 mb-3">Votre situation</Text>
+                <Text className="text-base text-gray-500 leading-relaxed">
+                  Configurez votre profil pour des suggestions adaptées
+                </Text>
+              </View>
+
+              <CoupleModeToggle
+                hasCouple={hasCouple}
+                coupleMode={coupleMode}
+                onToggleCouple={(v) => {
+                  form.setFieldValue("hasCouple", v);
+                  if (!v) resetCoupleFields();
+                }}
+                onChangeMode={setCoupleMode}
+              />
+
+              {!hasCouple && (
+                <View className="bg-blue-50 p-4 rounded-xl border-2 border-blue-100">
+                  <Text className="text-blue-800 leading-relaxed">
+                    💡 Vous pouvez utiliser l'application en solo. Vous pourrez ajouter un partenaire plus tard depuis les paramètres.
+                  </Text>
+                </View>
+              )}
+
+              {hasCouple && coupleMode === "create" && (
+                <View>
+                  <OptionGrid
+                    label="Durée de la relation"
+                    options={RELATIONSHIP_DURATIONS}
+                    getLabel={(o) => DURATION_META[o].label}
+                    getIcon={(o) => DURATION_META[o].icon}
+                    selected={relationshipDuration as RelationshipDuration | undefined}
+                    onSelect={(v) => form.setFieldValue("relationshipDuration", v)}
+                  />
+                  <OptionGrid
+                    label="Statut"
+                    options={RELATIONSHIP_STATUSES}
+                    getLabel={(o) => STATUS_META[o].label}
+                    getIcon={(o) => STATUS_META[o].icon}
+                    selected={relationshipStatus as RelationshipStatus | undefined}
+                    onSelect={(v) => form.setFieldValue("relationshipStatus", v)}
+                  />
+                  <OptionGrid
+                    label="Situation de vie"
+                    options={LIVING_SITUATIONS}
+                    getLabel={(o) => SITUATION_META[o].label}
+                    getIcon={(o) => SITUATION_META[o].icon}
+                    selected={livingSituation as LivingSituation | undefined}
+                    onSelect={(v) => form.setFieldValue("livingSituation", v)}
+                  />
+                </View>
+              )}
+
+              {hasCouple && coupleMode === "join" && (
+                <InviteCodeInput
+                  value={inviteCode}
+                  onChange={(code) => form.setFieldValue("inviteCode", code)}
+                />
+              )}
+            </View>
+          </StepContainer>
+        );
       }}
-      isNextDisabled={isUpdating}
-      isLoading={isUpdating}
-      nextLabel="Terminer 🎉"
-    >
-      <View className="flex-1 bg-white px-1">
-        <View className="mb-6 mt-2">
-          <Text className="text-3xl font-bold text-gray-900 mb-3">Votre situation</Text>
-          <Text className="text-base text-gray-500 leading-relaxed">
-            Configurez votre profil pour des suggestions adaptées
-          </Text>
-        </View>
-
-        <CoupleModeToggle
-          hasCouple={hasCouple}
-          coupleMode={coupleMode}
-          onToggleCouple={(v) => { form.setFieldValue("hasCouple", v); if (!v) resetCoupleFields(); }}
-          onChangeMode={setCoupleMode}
-        />
-
-        {!hasCouple && (
-          <View className="bg-blue-50 p-4 rounded-xl border-2 border-blue-100">
-            <Text className="text-blue-800 leading-relaxed">
-              💡 Vous pouvez utiliser l'application en solo. Vous pourrez ajouter un partenaire plus tard depuis les paramètres.
-            </Text>
-          </View>
-        )}
-
-        {hasCouple && coupleMode === "create" && (
-          <View>
-            <OptionGrid
-              label="Durée de la relation"
-              options={RELATIONSHIP_DURATIONS}
-              getLabel={(o) => DURATION_META[o].label}
-              getIcon={(o) => DURATION_META[o].icon}
-              selected={relationshipDuration as RelationshipDuration | undefined}
-              onSelect={(v) => form.setFieldValue("relationshipDuration", v)}
-            />
-            <OptionGrid
-              label="Statut"
-              options={RELATIONSHIP_STATUSES}
-              getLabel={(o) => STATUS_META[o].label}
-              getIcon={(o) => STATUS_META[o].icon}
-              selected={relationshipStatus as RelationshipStatus | undefined}
-              onSelect={(v) => form.setFieldValue("relationshipStatus", v)}
-            />
-            <OptionGrid
-              label="Situation de vie"
-              options={LIVING_SITUATIONS}
-              getLabel={(o) => SITUATION_META[o].label}
-              getIcon={(o) => SITUATION_META[o].icon}
-              selected={livingSituation as LivingSituation | undefined}
-              onSelect={(v) => form.setFieldValue("livingSituation", v)}
-            />
-          </View>
-        )}
-
-        {hasCouple && coupleMode === "join" && (
-          <InviteCodeInput
-            value={inviteCode}
-            onChange={(code) => form.setFieldValue("inviteCode", code)}
-          />
-        )}
-      </View>
-    </StepContainer>
+    </form.Subscribe>
   );
 }
