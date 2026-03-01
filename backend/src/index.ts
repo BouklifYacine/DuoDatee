@@ -2,14 +2,18 @@ import "dotenv/config";
 import { Hono } from "hono";
 import { auth } from "../lib/auth";
 import { cors } from "hono/cors";
+import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import {
   authMiddleware,
   type AuthVariables,
 } from "./middleware/AuthMiddleware";
-import onboardingUserRoutes from "./features/onboarding/onboardinguser/user.routes";
-import onboardingPreferencesRoutes from "./features/onboarding/onboardingpreferences/preferences.routes";
-import onboardingCoupleRoutes from "./features/onboarding/onboardingcouple/couple.routes";
-import onboardingStatusRoutes from "./features/onboarding/onboardingstatus/status.routes";
+import { appRouter } from "./trpc/router";
+import { createContext } from "./trpc/context";
+// Routes REST commentées - migrées vers tRPC
+// import onboardingUserRoutes from "./features/onboarding/onboardinguser/user.routes";
+// import onboardingPreferencesRoutes from "./features/onboarding/onboardingpreferences/preferences.routes";
+// import onboardingCoupleRoutes from "./features/onboarding/onboardingcouple/couple.routes";
+// import onboardingStatusRoutes from "./features/onboarding/onboardingstatus/status.routes";
 
 const app = new Hono<{ Variables: AuthVariables }>();
 
@@ -50,6 +54,7 @@ app.get("/", (c) => {
   return c.text("Hello Hono!");
 });
 
+// Better Auth - NE PAS COMMENTER (authentification)
 app.on(["POST", "GET"], "/api/auth/*", async (c) => {
   try {
     return await auth.handler(c.req.raw);
@@ -63,9 +68,22 @@ app.on(["POST", "GET"], "/api/auth/*", async (c) => {
   }
 });
 
-app.route("/api/onboarding", onboardingUserRoutes);
-app.route("/api/onboarding/preferences", onboardingPreferencesRoutes);
-app.route("/api/onboarding/couple", onboardingCoupleRoutes);
-app.route("/api/onboarding/status", onboardingStatusRoutes);
+// Routes REST commentées - migrées vers tRPC
+// app.route("/api/onboarding", onboardingUserRoutes);
+// app.route("/api/onboarding/preferences", onboardingPreferencesRoutes);
+// app.route("/api/onboarding/couple", onboardingCoupleRoutes);
+// app.route("/api/onboarding/status", onboardingStatusRoutes);
+
+// tRPC handler - doit être après authMiddleware pour avoir la session
+app.use("/api/trpc/*", authMiddleware);
+
+app.on(["POST", "GET"], "/api/trpc/*", async (c) => {
+  return fetchRequestHandler({
+    endpoint: "/api/trpc",
+    req: c.req.raw,
+    router: appRouter,
+    createContext: () => createContext(c.req.raw.headers),
+  });
+});
 
 export default app;
