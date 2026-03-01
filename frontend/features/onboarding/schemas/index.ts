@@ -3,8 +3,6 @@ export {
   profilSchema,
   type ProfilInput,
   type ProfilPayload,
-  validateProfilField,
-  validateProfilForm,
 } from "./profil.schema";
 
 // Schema de préférences
@@ -16,13 +14,10 @@ export {
   type PreferredBudget,
   type PreferencesInput,
   type PreferencesPayload,
-  validatePreferencesField,
-  validatePreferencesForm,
 } from "./preferences.schema";
 
 // Schema de couple
 export {
-  coupleOnboardingSchema,
   createCoupleSchema,
   joinCoupleSchema,
   RELATIONSHIP_DURATIONS,
@@ -31,12 +26,8 @@ export {
   type RelationshipDuration,
   type RelationshipStatus,
   type LivingSituation,
-  type CoupleOnboardingInput,
-  type CoupleOnboardingPayload,
   type CreateCoupleInput,
   type CreateCouplePayload,
   type JoinCoupleInput,
   type JoinCouplePayload,
-  validateCoupleField,
-  validateCoupleForm,
 } from "./couple.schema";

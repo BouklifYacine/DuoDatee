@@ -9,12 +9,10 @@ import { z } from "zod";
 // Utilise crypto.randomBytes pour une sécurité appropriée
 function generateInviteCode(): string {
   const characters = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  const code = randomBytes(6)
-    .toString("uppercase")
-    .split("")
+  const bytes = randomBytes(6);
+  return Array.from(bytes)
     .map((byte) => characters[byte % characters.length])
     .join("");
-  return code;
 }
 
 export const coupleRouter = router({

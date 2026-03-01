@@ -10,7 +10,6 @@ import {
   View,
 } from "react-native";
 import { Input } from "@/components/ui/input";
-import { createZodValidator } from "@/lib/zod-form-adapter";
 import { useSignUpMutation } from "@/hooks/use-sign-up-mutation";
 import {
   signUpSchema,
@@ -26,7 +25,6 @@ const DEFAULT_VALUES: SignUpInput = {
   password: "",
 };
 
-const signUpValidator = createZodValidator(signUpSchema);
 
 // ─── FormField component ─────────────────────────────────────────────────────
 
@@ -56,9 +54,8 @@ function SignUpFormField({ field, label, ...inputProps }: FormFieldProps) {
         onBlur={handleBlur}
         placeholder={label}
         placeholderTextColor="rgba(255,255,255,0.7)"
-        className={`rounded-xl bg-white/10 text-white pl-4 ${
-          hasError ? "border-red-500" : "border-white/60"
-        }`}
+        className={`rounded-xl bg-white/10 text-white pl-4 ${hasError ? "border-red-500" : "border-white/60"
+          }`}
         {...inputProps}
       />
       {error ? (
@@ -76,7 +73,14 @@ export default function SignUpScreen() {
   const form = useForm({
     defaultValues: DEFAULT_VALUES,
     validators: {
-      onSubmit: ({ value }) => signUpValidator(value) ?? null,
+      onSubmit: ({ value }) => {
+        const r = signUpSchema.safeParse(value);
+        if (!r.success) {
+          const flat = r.error.flatten();
+          return { fields: { name: flat.fieldErrors.name?.[0], email: flat.fieldErrors.email?.[0], password: flat.fieldErrors.password?.[0] } };
+        }
+        return undefined;
+      },
     },
     onSubmit: async ({ value }) => {
       const payload = signUpSchema.parse(value);
@@ -174,9 +178,8 @@ export default function SignUpScreen() {
           <Pressable
             onPress={() => form.handleSubmit()}
             disabled={signUpMutation.isPending}
-            className={`mt-2.5 items-center justify-center h-16 rounded-4xl bg-white ${
-              signUpMutation.isPending ? "opacity-70" : ""
-            }`}
+            className={`mt-2.5 items-center justify-center h-16 rounded-4xl bg-white ${signUpMutation.isPending ? "opacity-70" : ""
+              }`}
           >
             {signUpMutation.isPending ? (
               <ActivityIndicator color="#8B3A52" />

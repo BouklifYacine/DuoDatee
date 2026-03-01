@@ -2,24 +2,29 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink } from "@trpc/client";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { trpc, trpcUrl } from "./trpc";
-import { authClient } from "./auth-client";
+import { useSession } from "./auth-client";
 
 export function TRPCProvider({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());
+  const tokenRef = useRef<string | null>(null);
+
+  // Use Better Auth hook to keep track of session state
+  const { data } = useSession();
+
+  // Always keep the ref updated with the latest token
+  tokenRef.current = data?.session?.token ?? null;
+
   const [trpcClient] = useState(() =>
     trpc.createClient({
       links: [
         httpBatchLink({
           url: trpcUrl,
-          async headers() {
-            // Get the session from better-auth
-            const result = await authClient.getSession();
-            if (result?.data?.session) {
-              return { Authorization: `Bearer ${result.data.session.token}` };
-            }
-            return {};
+          headers() {
+            return tokenRef.current
+              ? { Authorization: `Bearer ${tokenRef.current}` }
+              : {};
           },
         }),
       ],

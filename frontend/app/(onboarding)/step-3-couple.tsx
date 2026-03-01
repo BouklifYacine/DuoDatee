@@ -1,43 +1,44 @@
-"use client";
-
 import { useForm } from "@tanstack/react-form";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { View, Text, TextInput, Pressable, Switch } from "react-native";
+import { View, Text } from "react-native";
 import { StepContainer } from "@/components/onboarding";
-import { useOnboarding } from "@/features/onboarding";
-import { 
-  coupleOnboardingSchema,
+import {
+  useOnboarding,
+  CoupleModeToggle,
+  OptionGrid,
+  InviteCodeInput,
   RELATIONSHIP_DURATIONS,
   RELATIONSHIP_STATUSES,
   LIVING_SITUATIONS,
-  createCoupleSchema,
-  joinCoupleSchema,
-} from "@/features/onboarding/schemas";
+  type RelationshipDuration,
+  type RelationshipStatus,
+  type LivingSituation,
+} from "@/features/onboarding";
+import { createCoupleSchema, joinCoupleSchema } from "@/features/onboarding/schemas";
 
-const LABELS = ["Profil", "Préférences", " Couple"];
-const STEP = 2;
+const LABELS = ["Profil", "Préférences", "Couple"];
 
-const DURATION_LABELS: Record<string, string> = {
-  moins_de_6m: "Moins de 6 mois",
-  six_mois_un_an: "6 mois - 1 an",
-  un_trois_ans: "1 - 3 ans",
-  trois_cinq_ans: "3 - 5 ans",
-  cinq_dix_ans: "5 - 10 ans",
-  dix_ans_plus: "10+ ans",
+const DURATION_META: Record<RelationshipDuration, { label: string; icon: string }> = {
+  moins_de_6m: { label: "Moins de 6 mois", icon: "💕" },
+  six_mois_un_an: { label: "6 mois – 1 an", icon: "💗" },
+  un_trois_ans: { label: "1 – 3 ans", icon: "❤️" },
+  trois_cinq_ans: { label: "3 – 5 ans", icon: "💖" },
+  cinq_dix_ans: { label: "5 – 10 ans", icon: "💘" },
+  dix_ans_plus: { label: "10 ans et plus", icon: "💞" },
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  en_couple: "En couple",
-  fiances: "Fiancés",
-  pacses: "Pacsés",
-  maries: "Mariés",
+const STATUS_META: Record<RelationshipStatus, { label: string; icon: string }> = {
+  en_couple: { label: "En couple", icon: "💑" },
+  fiances: { label: "Fiancés", icon: "💍" },
+  pacses: { label: "Pacsés", icon: "📜" },
+  maries: { label: "Mariés", icon: "💒" },
 };
 
-const SITUATION_LABELS: Record<string, string> = {
-  ensemble: "Ensemble",
-  separes_proche: "Séparés (proche)",
-  separes_loin: "Séparés (loin)",
+const SITUATION_META: Record<LivingSituation, { label: string; icon: string }> = {
+  ensemble: { label: "Ensemble", icon: "🏠" },
+  separes_proche: { label: "Séparés (proche)", icon: "🚗" },
+  separes_loin: { label: "Séparés (loin)", icon: "✈️" },
 };
 
 export default function Step3Couple() {
@@ -47,276 +48,116 @@ export default function Step3Couple() {
 
   const form = useForm({
     defaultValues: {
-      hasCouple: false,
+      hasCouple: false as boolean,
       relationshipDuration: undefined as string | undefined,
       relationshipStatus: undefined as string | undefined,
       livingSituation: undefined as string | undefined,
-      inviteCode: "",
+      inviteCode: "" as string,
     },
-    validators: {
-      onChange: ({ value }) => {
-        const result = coupleOnboardingSchema.safeParse(value);
-        if (!result.success) {
-          return result.error.issues;
+    onSubmit: async ({ value }) => {
+      try {
+        if (value.hasCouple) {
+          if (coupleMode === "create") {
+            const r = createCoupleSchema.safeParse(value);
+            if (!r.success) return;
+            await createCouple(r.data);
+          } else {
+            const r = joinCoupleSchema.safeParse({ inviteCode: value.inviteCode });
+            if (!r.success) return;
+            await joinCouple(r.data);
+          }
         }
-        return undefined;
-      },
+        await completeOnboarding();
+        router.replace("/(tabs)");
+      } catch (err) {
+        console.error("Onboarding error:", err);
+      }
     },
   });
 
-  const handleBack = () => {
-    router.back();
-  };
+  const { hasCouple, relationshipDuration, relationshipStatus, livingSituation, inviteCode } = form.state.values;
 
-  const handleFinish = async () => {
-    const values = form.state.values;
-    
-    try {
-      // Si l'utilisateur est en couple, créer ou rejoindre le couple
-      if (values.hasCouple) {
-        if (coupleMode === "create") {
-          const createResult = createCoupleSchema.safeParse({
-            relationshipDuration: values.relationshipDuration,
-            relationshipStatus: values.relationshipStatus,
-            livingSituation: values.livingSituation,
-          });
-          
-          if (!createResult.success) {
-            console.error("Validation error:", createResult.error);
-            return;
-          }
-          await createCouple(createResult.data);
-        } else {
-          const joinResult = joinCoupleSchema.safeParse({
-            inviteCode: values.inviteCode,
-          });
-          
-          if (!joinResult.success) {
-            console.error("Validation error:", joinResult.error);
-            return;
-          }
-          await joinCouple(joinResult.data);
-        }
-      }
-      
-      // Terminer l'onboarding
-      await completeOnboarding();
-      
-      // Rediriger vers les tabs
-      router.replace("/(tabs)");
-    } catch (error) {
-      console.error("Error completing onboarding:", error);
-    }
-  };
+  const canSubmit = !hasCouple
+    ? true
+    : coupleMode === "create"
+      ? !!relationshipDuration && !!relationshipStatus && !!livingSituation
+      : inviteCode.length === 6;
 
-  const formValues = form.state.values;
-  
-  // Validation depends on couple mode
-  const isValid = () => {
-    if (!formValues.hasCouple) return true;
-    
-    if (coupleMode === "create") {
-      return (
-        formValues.relationshipDuration !== undefined &&
-        formValues.relationshipStatus !== undefined &&
-        formValues.livingSituation !== undefined
-      );
-    } else {
-      return formValues.inviteCode && formValues.inviteCode.length === 6;
-    }
+  const resetCoupleFields = () => {
+    form.setFieldValue("relationshipDuration", undefined);
+    form.setFieldValue("relationshipStatus", undefined);
+    form.setFieldValue("livingSituation", undefined);
+    form.setFieldValue("inviteCode", "");
   };
 
   return (
     <StepContainer
-      currentStep={STEP}
+      currentStep={2}
       totalSteps={3}
       labels={LABELS}
-      onBack={handleBack}
-      onNext={handleFinish}
-      isNextDisabled={!isValid()}
+      onBack={() => router.back()}
+      onNext={() => form.handleSubmit()}
+      isNextDisabled={!canSubmit}
       isLoading={isUpdating}
-      nextLabel="Terminer"
+      nextLabel="Terminer 🎉"
     >
-      <View className="flex-1">
-        <Text className="text-2xl font-bold mb-2">Votre situation</Text>
-        <Text className="text-gray-600 mb-6">
-          Configurez votre profil de couple pour des suggestions adaptées
-        </Text>
-
-        {/* Couple Switch */}
-        <View className="flex-row items-center justify-between mb-6 p-4 bg-gray-50 rounded-lg">
-          <Text className="text-lg font-medium">Je suis en couple</Text>
-          <Switch
-            value={formValues.hasCouple}
-            onValueChange={(value) => {
-              form.setFieldValue("hasCouple", value);
-              if (!value) {
-                form.setFieldValue("relationshipDuration", undefined);
-                form.setFieldValue("relationshipStatus", undefined);
-                form.setFieldValue("livingSituation", undefined);
-                form.setFieldValue("inviteCode", "");
-              }
-            }}
-          />
+      <View className="flex-1 bg-white px-1">
+        <View className="mb-6 mt-2">
+          <Text className="text-3xl font-bold text-gray-900 mb-3">Votre situation</Text>
+          <Text className="text-base text-gray-500 leading-relaxed">
+            Configurez votre profil pour des suggestions adaptées
+          </Text>
         </View>
 
-        {/* If not in couple - show explanation */}
-        {!formValues.hasCouple && (
-          <View className="bg-blue-50 p-4 rounded-lg">
-            <Text className="text-blue-800">
-              Vous pouvez utiliser l'application en solo. Vous pourrez toujours ajouter un partenaire plus tard depuis les paramètres.
+        <CoupleModeToggle
+          hasCouple={hasCouple}
+          coupleMode={coupleMode}
+          onToggleCouple={(v) => { form.setFieldValue("hasCouple", v); if (!v) resetCoupleFields(); }}
+          onChangeMode={setCoupleMode}
+        />
+
+        {!hasCouple && (
+          <View className="bg-blue-50 p-4 rounded-xl border-2 border-blue-100">
+            <Text className="text-blue-800 leading-relaxed">
+              💡 Vous pouvez utiliser l'application en solo. Vous pourrez ajouter un partenaire plus tard depuis les paramètres.
             </Text>
           </View>
         )}
 
-        {/* If in couple - show options */}
-        {formValues.hasCouple && (
+        {hasCouple && coupleMode === "create" && (
           <View>
-            {/* Create/Join Tabs */}
-            <View className="flex-row mb-6">
-              <Pressable
-                className={`flex-1 py-2 px-4 rounded-l-lg border ${
-                  coupleMode === "create"
-                    ? "border-primary bg-primary/10"
-                    : "border-gray-300"
-                }`}
-                onPress={() => setCoupleMode("create")}
-              >
-                <Text
-                  className={`text-center font-medium ${
-                    coupleMode === "create" ? "text-primary" : "text-gray-700"
-                  }`}
-                >
-                  Créer
-                </Text>
-              </Pressable>
-              <Pressable
-                className={`flex-1 py-2 px-4 rounded-r-lg border ${
-                  coupleMode === "join"
-                    ? "border-primary bg-primary/10"
-                    : "border-gray-300"
-                }`}
-                onPress={() => setCoupleMode("join")}
-              >
-                <Text
-                  className={`text-center font-medium ${
-                    coupleMode === "join" ? "text-primary" : "text-gray-700"
-                  }`}
-                >
-                  Rejoindre
-                </Text>
-              </Pressable>
-            </View>
-
-            {/* Create Couple Form */}
-            {coupleMode === "create" && (
-              <View>
-                {/* Relationship Duration */}
-                <View className="mb-4">
-                  <Text className="text-sm font-medium mb-2">Durée de la relation</Text>
-                  <View className="flex-row flex-wrap gap-2">
-                    {RELATIONSHIP_DURATIONS.map((duration) => (
-                      <Pressable
-                        key={duration}
-                        className={`py-2 px-3 rounded-lg border ${
-                          formValues.relationshipDuration === duration
-                            ? "border-primary bg-primary/10"
-                            : "border-gray-300"
-                        }`}
-                        onPress={() => form.setFieldValue("relationshipDuration", duration)}
-                      >
-                        <Text
-                          className={
-                            formValues.relationshipDuration === duration
-                              ? "text-primary font-medium"
-                              : "text-gray-700"
-                          }
-                        >
-                          {DURATION_LABELS[duration]}
-                        </Text>
-                      </Pressable>
-                    ))}
-                  </View>
-                </View>
-
-                {/* Relationship Status */}
-                <View className="mb-4">
-                  <Text className="text-sm font-medium mb-2">Statut</Text>
-                  <View className="flex-row flex-wrap gap-2">
-                    {RELATIONSHIP_STATUSES.map((status) => (
-                      <Pressable
-                        key={status}
-                        className={`py-2 px-3 rounded-lg border ${
-                          formValues.relationshipStatus === status
-                            ? "border-primary bg-primary/10"
-                            : "border-gray-300"
-                        }`}
-                        onPress={() => form.setFieldValue("relationshipStatus", status)}
-                      >
-                        <Text
-                          className={
-                            formValues.relationshipStatus === status
-                              ? "text-primary font-medium"
-                              : "text-gray-700"
-                          }
-                        >
-                          {STATUS_LABELS[status]}
-                        </Text>
-                      </Pressable>
-                    ))}
-                  </View>
-                </View>
-
-                {/* Living Situation */}
-                <View className="mb-4">
-                  <Text className="text-sm font-medium mb-2">Situation de vie</Text>
-                  <View className="flex-row flex-wrap gap-2">
-                    {LIVING_SITUATIONS.map((situation) => (
-                      <Pressable
-                        key={situation}
-                        className={`py-2 px-3 rounded-lg border ${
-                          formValues.livingSituation === situation
-                            ? "border-primary bg-primary/10"
-                            : "border-gray-300"
-                        }`}
-                        onPress={() => form.setFieldValue("livingSituation", situation)}
-                      >
-                        <Text
-                          className={
-                            formValues.livingSituation === situation
-                              ? "text-primary font-medium"
-                              : "text-gray-700"
-                          }
-                        >
-                          {SITUATION_LABELS[situation]}
-                        </Text>
-                      </Pressable>
-                    ))}
-                  </View>
-                </View>
-              </View>
-            )}
-
-            {/* Join Couple Form */}
-            {coupleMode === "join" && (
-              <View className="mb-4">
-                <Text className="text-sm font-medium mb-2">Code d'invitation</Text>
-                <TextInput
-                  className="border border-gray-300 rounded-lg px-4 py-3 text-lg text-center uppercase"
-                  placeholder="XXXXXX"
-                  value={formValues.inviteCode}
-                  onChangeText={(text) => 
-                    form.setFieldValue("inviteCode", text.toUpperCase().slice(0, 6))
-                  }
-                  maxLength={6}
-                  autoCapitalize="characters"
-                />
-                <Text className="text-xs text-gray-500 mt-2">
-                  Demandez le code à votre partenaire
-                </Text>
-              </View>
-            )}
+            <OptionGrid
+              label="Durée de la relation"
+              options={RELATIONSHIP_DURATIONS}
+              getLabel={(o) => DURATION_META[o].label}
+              getIcon={(o) => DURATION_META[o].icon}
+              selected={relationshipDuration as RelationshipDuration | undefined}
+              onSelect={(v) => form.setFieldValue("relationshipDuration", v)}
+            />
+            <OptionGrid
+              label="Statut"
+              options={RELATIONSHIP_STATUSES}
+              getLabel={(o) => STATUS_META[o].label}
+              getIcon={(o) => STATUS_META[o].icon}
+              selected={relationshipStatus as RelationshipStatus | undefined}
+              onSelect={(v) => form.setFieldValue("relationshipStatus", v)}
+            />
+            <OptionGrid
+              label="Situation de vie"
+              options={LIVING_SITUATIONS}
+              getLabel={(o) => SITUATION_META[o].label}
+              getIcon={(o) => SITUATION_META[o].icon}
+              selected={livingSituation as LivingSituation | undefined}
+              onSelect={(v) => form.setFieldValue("livingSituation", v)}
+            />
           </View>
+        )}
+
+        {hasCouple && coupleMode === "join" && (
+          <InviteCodeInput
+            value={inviteCode}
+            onChange={(code) => form.setFieldValue("inviteCode", code)}
+          />
         )}
       </View>
     </StepContainer>

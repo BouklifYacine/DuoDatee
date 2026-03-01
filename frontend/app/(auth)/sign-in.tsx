@@ -15,7 +15,6 @@ import {
   useGoogleSignInMutation,
   useSignInMutation,
 } from "@/hooks/use-sign-in-mutation";
-import { createZodValidator } from "@/lib/zod-form-adapter";
 import {
   signInSchema,
   validateField,
@@ -29,7 +28,6 @@ const DEFAULT_VALUES: SignInInput = {
   password: "",
 };
 
-const signInValidator = createZodValidator(signInSchema);
 
 // ─── FormField component ─────────────────────────────────────────────────────
 
@@ -59,9 +57,8 @@ function SignInFormField({ field, label, ...inputProps }: FormFieldProps) {
         onBlur={handleBlur}
         placeholder={label}
         placeholderTextColor="rgba(255,255,255,0.7)"
-        className={`rounded-xl bg-white/10 text-white pl-4 ${
-          hasError ? "border-red-500" : "border-white/60"
-        }`}
+        className={`rounded-xl bg-white/10 text-white pl-4 ${hasError ? "border-red-500" : "border-white/60"
+          }`}
         {...inputProps}
       />
       {error ? (
@@ -80,7 +77,14 @@ export default function SignInScreen() {
   const form = useForm({
     defaultValues: DEFAULT_VALUES,
     validators: {
-      onSubmit: ({ value }) => signInValidator(value) ?? null,
+      onSubmit: ({ value }) => {
+        const r = signInSchema.safeParse(value);
+        if (!r.success) {
+          const flat = r.error.flatten();
+          return { fields: { email: flat.fieldErrors.email?.[0], password: flat.fieldErrors.password?.[0] } };
+        }
+        return undefined;
+      },
     },
     onSubmit: async ({ value }) => {
       const payload = signInSchema.parse(value);
@@ -119,7 +123,7 @@ export default function SignInScreen() {
             validators={{
               onChange: ({ value, fieldApi }) =>
                 fieldApi.state.meta.isBlurred ||
-                form.state.submissionAttempts > 0
+                  form.state.submissionAttempts > 0
                   ? validateField("email", value) ?? null
                   : null,
             }}
@@ -140,7 +144,7 @@ export default function SignInScreen() {
             validators={{
               onChange: ({ value, fieldApi }) =>
                 fieldApi.state.meta.isBlurred ||
-                form.state.submissionAttempts > 0
+                  form.state.submissionAttempts > 0
                   ? validateField("password", value) ?? null
                   : null,
             }}
@@ -163,11 +167,10 @@ export default function SignInScreen() {
           <Pressable
             onPress={() => form.handleSubmit()}
             disabled={signInMutation.isPending || googleSignInMutation.isPending}
-            className={`mt-2.5 items-center justify-center h-16 rounded-4xl bg-white ${
-              signInMutation.isPending || googleSignInMutation.isPending
-                ? "opacity-70"
-                : ""
-            }`}
+            className={`mt-2.5 items-center justify-center h-16 rounded-4xl bg-white ${signInMutation.isPending || googleSignInMutation.isPending
+              ? "opacity-70"
+              : ""
+              }`}
           >
             {signInMutation.isPending ? (
               <ActivityIndicator color="#8B3A52" />
@@ -179,11 +182,10 @@ export default function SignInScreen() {
           <Pressable
             onPress={handleGoogleSignIn}
             disabled={signInMutation.isPending || googleSignInMutation.isPending}
-            className={`flex-row items-center justify-center gap-2 h-16 rounded-4xl bg-white ${
-              signInMutation.isPending || googleSignInMutation.isPending
-                ? "opacity-70"
-                : ""
-            }`}
+            className={`flex-row items-center justify-center gap-2 h-16 rounded-4xl bg-white ${signInMutation.isPending || googleSignInMutation.isPending
+              ? "opacity-70"
+              : ""
+              }`}
           >
             {googleSignInMutation.isPending ? (
               <ActivityIndicator color="#8B3A52" size="small" />

@@ -1,14 +1,16 @@
-"use client";
-
 import { useForm } from "@tanstack/react-form";
+import { z } from "zod";
 import { useRouter } from "expo-router";
-import { View, Text, TextInput, Pressable } from "react-native";
+import { View, Text } from "react-native";
 import { StepContainer } from "@/components/onboarding";
-import { useOnboarding } from "@/features/onboarding";
+import { useOnboarding, ValidatedTextField, GenderSelector } from "@/features/onboarding";
 import { profilSchema } from "@/features/onboarding/schemas";
 
 const LABELS = ["Profil", "Préférences", "Couple"];
-const STEP = 0;
+
+// Zod v4: validate age as string input before parsing to number
+const nameSchema = z.string({ error: "Requis" }).trim().min(3, { error: "Minimum 3 caractères" }).max(20, { error: "Maximum 20 caractères" });
+const ageSchema = z.string({ error: "Requis" }).refine((v) => { const n = parseInt(v, 10); return !isNaN(n) && n >= 16 && n <= 99; }, { error: "Entre 16 et 99 ans" });
 
 export default function Step1Profil() {
   const router = useRouter();
@@ -16,125 +18,62 @@ export default function Step1Profil() {
 
   const form = useForm({
     defaultValues: {
-      name: "",
-      age: undefined as number | undefined,
+      name: "" as string,
+      age: "" as string,
       gender: undefined as "homme" | "femme" | undefined,
     },
-    validators: {
-      onChange: ({ value }) => {
-        const result = profilSchema.safeParse(value);
-        if (!result.success) {
-          return result.error.issues;
-        }
-        return undefined;
-      },
+    onSubmit: async ({ value }) => {
+      const result = profilSchema.safeParse({ ...value, age: parseInt(value.age, 10) });
+      if (!result.success) return;
+      await updateProfil(result.data);
+      router.push("/step-2-preferences");
     },
   });
 
-  const handleNext = async () => {
-    const values = form.state.values;
-    const result = profilSchema.safeParse(values);
-    if (!result.success) return;
-    
-    try {
-      await updateProfil(result.data);
-      router.push("/step-2-preferences");
-    } catch (error) {
-      console.error("Error updating profil:", error);
-    }
-  };
-
-  const formValues = form.state.values;
-  const isValid = formValues.name && 
-    formValues.name.length >= 3 && 
-    formValues.age !== undefined && 
-    formValues.age >= 16;
+  const { name, age, gender } = form.state.values;
+  const canSubmit = !nameSchema.safeParse(name).error && !ageSchema.safeParse(age).error && !!gender;
 
   return (
     <StepContainer
-      currentStep={STEP}
+      currentStep={0}
       totalSteps={3}
       labels={LABELS}
       showBackButton={false}
-      onNext={handleNext}
-      isNextDisabled={!isValid}
+      onNext={() => form.handleSubmit()}
+      isNextDisabled={!canSubmit}
       isLoading={isUpdating}
     >
-      <View className="flex-1">
-        <Text className="text-2xl font-bold mb-2">Parlez-nous de vous</Text>
-        <Text className="text-gray-600 mb-6">
-          Ces informations nous aideront à personnaliser votre expérience
-        </Text>
-
-        {/* Name Field */}
-        <View className="mb-4">
-          <Text className="text-sm font-medium mb-2">Nom</Text>
-          <TextInput
-            className="border border-gray-300 rounded-lg px-4 py-3 text-lg"
-            placeholder="Votre nom"
-            value={formValues.name}
-            onChangeText={(text) => form.setFieldValue("name", text)}
-            autoCapitalize="words"
-          />
+      <View className="flex-1 bg-white px-1">
+        <View className="mb-8 mt-2">
+          <Text className="text-3xl font-bold text-gray-900 mb-3">Parlez-nous de vous</Text>
+          <Text className="text-base text-gray-500 leading-relaxed">
+            Ces informations nous aideront à personnaliser votre expérience
+          </Text>
         </View>
 
-        {/* Age Field */}
-        <View className="mb-4">
-          <Text className="text-sm font-medium mb-2">Âge</Text>
-          <TextInput
-            className="border border-gray-300 rounded-lg px-4 py-3 text-lg"
-            placeholder="Votre âge"
-            value={formValues.age ? String(formValues.age) : ""}
-            onChangeText={(text) => {
-              const age = parseInt(text, 10);
-              if (!isNaN(age)) {
-                form.setFieldValue("age", age);
-              } else if (text === "") {
-                form.setFieldValue("age", undefined);
-              }
-            }}
-            keyboardType="numeric"
-          />
-        </View>
+        <form.Field
+          name="name"
+          validators={{ onChange: ({ value }) => nameSchema.safeParse(value).error?.issues[0]?.message, onBlur: ({ value }) => nameSchema.safeParse(value).error?.issues[0]?.message }}
+        >
+          {(field) => <ValidatedTextField field={field} label="Nom" placeholder="Votre prénom" icon="👤" autoCapitalize="words" />}
+        </form.Field>
 
-        {/* Gender Selection */}
-        <View className="mb-6">
-          <Text className="text-sm font-medium mb-2">Genre</Text>
-          <View className="flex-row gap-3">
-            <Pressable
-              className={`flex-1 py-3 px-4 rounded-lg border ${
-                formValues.gender === "homme"
-                  ? "border-primary bg-primary/10"
-                  : "border-gray-300"
-              }`}
-              onPress={() => form.setFieldValue("gender", "homme")}
-            >
-              <Text
-                className={`text-center font-medium ${
-                  formValues.gender === "homme" ? "text-primary" : "text-gray-700"
-                }`}
-              >
-                Homme
-              </Text>
-            </Pressable>
-            <Pressable
-              className={`flex-1 py-3 px-4 rounded-lg border ${
-                formValues.gender === "femme"
-                  ? "border-primary bg-primary/10"
-                  : "border-gray-300"
-              }`}
-              onPress={() => form.setFieldValue("gender", "femme")}
-            >
-              <Text
-                className={`text-center font-medium ${
-                  formValues.gender === "femme" ? "text-primary" : "text-gray-700"
-                }`}
-              >
-                Femme
-              </Text>
-            </Pressable>
-          </View>
-        </View>
+        <form.Field
+          name="age"
+          validators={{ onChange: ({ value }) => ageSchema.safeParse(value).error?.issues[0]?.message, onBlur: ({ value }) => ageSchema.safeParse(value).error?.issues[0]?.message }}
+        >
+          {(field) => <ValidatedTextField field={field} label="Âge" placeholder="Votre âge" icon="🎂" keyboardType="numeric" />}
+        </form.Field>
+
+        <form.Field name="gender">
+          {(field) => (
+            <GenderSelector
+              value={field.state.value}
+              onChange={(g) => { field.handleChange(g); field.handleBlur(); }}
+              submissionAttempts={form.state.submissionAttempts}
+            />
+          )}
+        </form.Field>
       </View>
     </StepContainer>
   );

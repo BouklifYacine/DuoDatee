@@ -47,25 +47,36 @@ export function StepContainer({
       className={cn("flex-1 bg-background", className)}
       keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
     >
-      {/* Progress Bar */}
-      {showProgressBar && (
-        <ProgressBar
-          currentStep={currentStep}
-          totalSteps={totalSteps}
-          labels={labels}
-        />
-      )}
+      {/* Main content area with subtle background */}
+      <View className="flex-1 bg-background">
+        {/* Progress Bar */}
+        {showProgressBar && (
+          <View className="bg-background border-b border-border/30">
+            <ProgressBar
+              currentStep={currentStep}
+              totalSteps={totalSteps}
+              labels={labels}
+            />
+          </View>
+        )}
 
-      {/* Scrollable Content */}
-      <ScrollView
-        className="flex-1"
-        contentContainerClassName={cn("flex-grow px-4 pb-4", contentClassName)}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-        bounces={false}
-      >
-        {children}
-      </ScrollView>
+        {/* Scrollable Content */}
+        <ScrollView
+          className="flex-1"
+          contentContainerClassName={cn(
+            "flex-grow px-6 pt-6 pb-8",
+            contentClassName
+          )}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          bounces={false}
+        >
+          {/* Content wrapper with card-like styling */}
+          <View className="flex-1">
+            {children}
+          </View>
+        </ScrollView>
+      </View>
 
       {/* Navigation Buttons */}
       {showNavigationButtons && (
