@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
-import { Link } from "expo-router";
+import { useRouter } from "expo-router";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import {
   ActivityIndicator,
@@ -8,9 +9,9 @@ import {
   Pressable,
   ScrollView,
   Text,
+  TextInput,
   View,
 } from "react-native";
-import { Input } from "@/components/ui/input";
 import {
   useGoogleSignInMutation,
   useSignInMutation,
@@ -20,59 +21,19 @@ import {
   validateField,
   type SignInInput,
 } from "@/schemas/signInSchema";
-
-// ─── Default values ─────────────────────────────────────────────────────────
+import { OB } from "@/constants/theme";
 
 const DEFAULT_VALUES: SignInInput = {
   email: "",
   password: "",
 };
 
-
-// ─── FormField component ─────────────────────────────────────────────────────
-
-type FormFieldProps = React.ComponentProps<typeof Input> & {
-  field: {
-    state: {
-      value: string;
-      meta: { errors: (string | null | undefined)[]; isBlurred: boolean };
-    };
-    handleChange: (value: string) => void;
-    handleBlur: () => void;
-    name: string;
-  };
-  label: string;
-};
-
-function SignInFormField({ field, label, ...inputProps }: FormFieldProps) {
-  const { state, handleChange, handleBlur } = field;
-  const error = state.meta.errors?.[0];
-  const hasError = Boolean(error);
-
-  return (
-    <>
-      <Input
-        value={state.value}
-        onChangeText={handleChange}
-        onBlur={handleBlur}
-        placeholder={label}
-        placeholderTextColor="rgba(255,255,255,0.7)"
-        className={`rounded-xl bg-white/10 text-white pl-4 ${hasError ? "border-red-500" : "border-white/60"
-          }`}
-        {...inputProps}
-      />
-      {error ? (
-        <Text className="mt-0.5 text-sm text-red-500">{error}</Text>
-      ) : null}
-    </>
-  );
-}
-
-// ─── Screen ──────────────────────────────────────────────────────────────────
-
 export default function SignInScreen() {
+  const router = useRouter();
   const signInMutation = useSignInMutation();
   const googleSignInMutation = useGoogleSignInMutation();
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const form = useForm({
     defaultValues: DEFAULT_VALUES,
@@ -96,116 +57,309 @@ export default function SignInScreen() {
     googleSignInMutation.mutate();
   };
 
+  const isPending = signInMutation.isPending || googleSignInMutation.isPending;
   const error = signInMutation.error ?? googleSignInMutation.error;
 
   return (
     <KeyboardAvoidingView
-      className="flex-1 bg-primary"
+      style={{ flex: 1, backgroundColor: OB.BG_DARK }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
     >
       <ScrollView
-        className="flex-1"
+        style={{ flex: 1 }}
         contentContainerStyle={{
           flexGrow: 1,
-          justifyContent: "center",
           paddingHorizontal: 24,
-          paddingVertical: 32,
+          paddingTop: 60,
+          paddingBottom: 40,
         }}
-        contentInsetAdjustmentBehavior="automatic"
         keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
-        <Text className="text-[28px] font-bold leading-8 text-white">Se connecter</Text>
+        {/* App name */}
+        <Text style={{ textAlign: "center", color: OB.TEXT_PRIMARY, fontSize: 26, fontWeight: "800", letterSpacing: 0.5, marginBottom: 28 }}>
+          DuoDate
+        </Text>
 
-        <View className="mt-4 gap-2.5">
-          <form.Field
-            name="email"
-            validators={{
-              onChange: ({ value, fieldApi }) =>
-                fieldApi.state.meta.isBlurred ||
-                  form.state.submissionAttempts > 0
-                  ? validateField("email", value) ?? null
-                  : null,
-            }}
-          >
-            {(field) => (
-              <SignInFormField
-                field={field}
-                label="Email"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-              />
-            )}
-          </form.Field>
+        {/* Pink icon */}
+        <View style={{ alignItems: "center", marginBottom: 20 }}>
+          <View style={{
+            width: 56, height: 56, borderRadius: 28,
+            backgroundColor: "rgba(232, 24, 95, 0.15)",
+            alignItems: "center", justifyContent: "center",
+          }}>
+            <Text style={{ fontSize: 28 }}>😊</Text>
+          </View>
+        </View>
 
-          <form.Field
-            name="password"
-            validators={{
-              onChange: ({ value, fieldApi }) =>
-                fieldApi.state.meta.isBlurred ||
-                  form.state.submissionAttempts > 0
-                  ? validateField("password", value) ?? null
-                  : null,
-            }}
-          >
-            {(field) => (
-              <SignInFormField
-                field={field}
-                label="Mot de passe (6 caractères min)"
-                secureTextEntry
-                autoCapitalize="none"
-                autoCorrect={false}
-              />
-            )}
-          </form.Field>
+        {/* Title */}
+        <Text style={{ textAlign: "center", color: OB.TEXT_PRIMARY, fontSize: 22, fontWeight: "800", marginBottom: 6 }}>
+          Connectez-vous ou inscrivez-vous
+        </Text>
+        <Text style={{ textAlign: "center", color: OB.TEXT_SECONDARY, fontSize: 13, lineHeight: 20, marginBottom: 24 }}>
+          Votre prochaine date vous attend. Connectez-vous{"\n"}pour commencer l'aventure.
+        </Text>
 
-          {error ? (
-            <Text className="text-sm text-red-500">{error.message}</Text>
-          ) : null}
-
+        {/* Log In / Sign Up tabs */}
+        <View style={{
+          flexDirection: "row",
+          backgroundColor: OB.BG_CARD,
+          borderRadius: 12,
+          padding: 4,
+          marginBottom: 24,
+          borderWidth: 1,
+          borderColor: OB.BORDER_DEFAULT,
+        }}>
           <Pressable
-            onPress={() => form.handleSubmit()}
-            disabled={signInMutation.isPending || googleSignInMutation.isPending}
-            className={`mt-2.5 items-center justify-center h-16 rounded-4xl bg-white ${signInMutation.isPending || googleSignInMutation.isPending
-              ? "opacity-70"
-              : ""
-              }`}
+            style={{
+              flex: 1,
+              paddingVertical: 12,
+              borderRadius: 9,
+              backgroundColor: OB.ACCENT,
+              alignItems: "center",
+            }}
           >
-            {signInMutation.isPending ? (
-              <ActivityIndicator color="#8B3A52" />
-            ) : (
-              <Text className="font-semibold text-primary text-xl">Se connecter</Text>
-            )}
+            <Text style={{ color: "#fff", fontWeight: "700", fontSize: 14 }}>
+              Se connecter
+            </Text>
+          </Pressable>
+          <Pressable
+            onPress={() => router.replace("/sign-up")}
+            style={{
+              flex: 1,
+              paddingVertical: 12,
+              borderRadius: 9,
+              backgroundColor: "transparent",
+              alignItems: "center",
+            }}
+          >
+            <Text style={{ color: OB.TEXT_SECONDARY, fontWeight: "700", fontSize: 14 }}>
+              S'inscrire
+            </Text>
+          </Pressable>
+        </View>
+
+        {/* Email field */}
+        <form.Field
+          name="email"
+          validators={{
+            onChange: ({ value, fieldApi }) =>
+              fieldApi.state.meta.isBlurred || form.state.submissionAttempts > 0
+                ? validateField("email", value) ?? null
+                : null,
+          }}
+        >
+          {(field) => {
+            const err = field.state.meta.errors?.[0];
+            return (
+              <View style={{ marginBottom: 16 }}>
+                <Text style={{ color: OB.TEXT_SECONDARY, fontSize: 13, fontWeight: "600", marginBottom: 6 }}>
+                  Email
+                </Text>
+                <View style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  height: 52,
+                  borderRadius: 12,
+                  borderWidth: 1.5,
+                  borderColor: err ? "#FF6B8A" : OB.BORDER_DEFAULT,
+                  backgroundColor: OB.BG_CARD,
+                  paddingHorizontal: 14,
+                }}>
+                  <TextInput
+                    style={{ flex: 1, color: OB.TEXT_PRIMARY, fontSize: 14 }}
+                    placeholder="monster76@gmail.com"
+                    placeholderTextColor={OB.TEXT_SECONDARY}
+                    value={field.state.value}
+                    onChangeText={field.handleChange}
+                    onBlur={field.handleBlur}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                  />
+                </View>
+                {err ? <Text style={{ color: "#FF6B8A", fontSize: 12, marginTop: 4 }}>{err}</Text> : null}
+              </View>
+            );
+          }}
+        </form.Field>
+
+        {/* Password field */}
+        <form.Field
+          name="password"
+          validators={{
+            onChange: ({ value, fieldApi }) =>
+              fieldApi.state.meta.isBlurred || form.state.submissionAttempts > 0
+                ? validateField("password", value) ?? null
+                : null,
+          }}
+        >
+          {(field) => {
+            const err = field.state.meta.errors?.[0];
+            return (
+              <View style={{ marginBottom: 12 }}>
+                <Text style={{ color: OB.TEXT_SECONDARY, fontSize: 13, fontWeight: "600", marginBottom: 6 }}>
+                  Mot de passe
+                </Text>
+                <View style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  height: 52,
+                  borderRadius: 12,
+                  borderWidth: 1.5,
+                  borderColor: err ? "#FF6B8A" : OB.BORDER_DEFAULT,
+                  backgroundColor: OB.BG_CARD,
+                  paddingHorizontal: 14,
+                }}>
+                  <TextInput
+                    style={{ flex: 1, color: OB.TEXT_PRIMARY, fontSize: 14 }}
+                    placeholder="••••••••••"
+                    placeholderTextColor={OB.TEXT_SECONDARY}
+                    value={field.state.value}
+                    onChangeText={field.handleChange}
+                    onBlur={field.handleBlur}
+                    secureTextEntry={!showPassword}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                  />
+                  <Pressable onPress={() => setShowPassword(!showPassword)} hitSlop={8}>
+                    <MaterialCommunityIcons
+                      name={showPassword ? "eye" : "eye-off"}
+                      size={20}
+                      color={OB.TEXT_SECONDARY}
+                    />
+                  </Pressable>
+                </View>
+                {err ? <Text style={{ color: "#FF6B8A", fontSize: 12, marginTop: 4 }}>{err}</Text> : null}
+              </View>
+            );
+          }}
+        </form.Field>
+
+        {/* Remember me + Forgot password */}
+        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+          <Pressable
+            onPress={() => setRememberMe(!rememberMe)}
+            style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
+          >
+            <View style={{
+              width: 18, height: 18, borderRadius: 4,
+              borderWidth: 1.5,
+              borderColor: rememberMe ? OB.ACCENT : OB.BORDER_DEFAULT,
+              backgroundColor: rememberMe ? OB.ACCENT : "transparent",
+              alignItems: "center", justifyContent: "center",
+            }}>
+              {rememberMe && <Text style={{ color: "#fff", fontSize: 10, fontWeight: "800" }}>✓</Text>}
+            </View>
+            <Text style={{ color: OB.TEXT_SECONDARY, fontSize: 13 }}>Se souvenir</Text>
+          </Pressable>
+          <Pressable>
+            <Text style={{ color: OB.ACCENT, fontSize: 13, fontWeight: "600" }}>
+              Mot de passe oublié ?
+            </Text>
+          </Pressable>
+        </View>
+
+        {/* API error */}
+        {error ? (
+          <Text style={{ color: "#FF6B8A", fontSize: 13, textAlign: "center", marginBottom: 12 }}>
+            {error.message}
+          </Text>
+        ) : null}
+
+        {/* Swipe to Login CTA */}
+        <Pressable
+          onPress={() => form.handleSubmit()}
+          disabled={isPending}
+          style={({ pressed }) => ({
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            height: 58,
+            borderRadius: 999,
+            backgroundColor: isPending ? "#3A1A2A" : OB.ACCENT,
+            opacity: isPending ? 0.6 : pressed ? 0.9 : 1,
+            shadowColor: OB.ACCENT,
+            shadowOffset: { width: 0, height: 8 },
+            shadowOpacity: isPending ? 0 : 0.45,
+            shadowRadius: 18,
+            elevation: isPending ? 0 : 12,
+            gap: 10,
+            paddingHorizontal: 20,
+            marginBottom: 24,
+          })}
+        >
+          <View style={{
+            width: 34, height: 34, borderRadius: 17,
+            backgroundColor: "rgba(255,255,255,0.18)",
+            alignItems: "center", justifyContent: "center",
+          }}>
+            <Text style={{ fontSize: 16 }}>❤️</Text>
+          </View>
+          {isPending ? (
+            <ActivityIndicator color="#fff" size="small" />
+          ) : (
+            <Text style={{ flex: 1, textAlign: "center", color: "#fff", fontSize: 16, fontWeight: "700" }}>
+              Se connecter
+            </Text>
+          )}
+          <Text style={{ color: "rgba(255,255,255,0.6)", fontSize: 14, fontWeight: "700", letterSpacing: -1 }}>{`>>>`}</Text>
+        </Pressable>
+
+        {/* Divider */}
+        <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 20 }}>
+          <View style={{ flex: 1, height: 1, backgroundColor: OB.BORDER_DEFAULT }} />
+          <Text style={{ color: OB.TEXT_SECONDARY, fontSize: 12, marginHorizontal: 12 }}>Ou se connecter avec</Text>
+          <View style={{ flex: 1, height: 1, backgroundColor: OB.BORDER_DEFAULT }} />
+        </View>
+
+        {/* Social login icons */}
+        <View style={{ flexDirection: "row", justifyContent: "center", gap: 16, marginBottom: 16 }}>
+          {/* Facebook */}
+          <Pressable
+            style={({ pressed }) => ({
+              width: 52, height: 52, borderRadius: 26,
+              borderWidth: 1.5, borderColor: OB.BORDER_DEFAULT,
+              backgroundColor: OB.BG_CARD,
+              alignItems: "center", justifyContent: "center",
+              opacity: pressed ? 0.7 : 1,
+            })}
+          >
+            <MaterialCommunityIcons name="facebook" size={24} color="#1877F2" />
           </Pressable>
 
+          {/* Google */}
           <Pressable
             onPress={handleGoogleSignIn}
-            disabled={signInMutation.isPending || googleSignInMutation.isPending}
-            className={`flex-row items-center justify-center gap-2 h-16 rounded-4xl bg-white ${signInMutation.isPending || googleSignInMutation.isPending
-              ? "opacity-70"
-              : ""
-              }`}
+            disabled={isPending}
+            style={({ pressed }) => ({
+              width: 52, height: 52, borderRadius: 26,
+              borderWidth: 1.5, borderColor: OB.BORDER_DEFAULT,
+              backgroundColor: OB.BG_CARD,
+              alignItems: "center", justifyContent: "center",
+              opacity: pressed || isPending ? 0.7 : 1,
+            })}
           >
             {googleSignInMutation.isPending ? (
-              <ActivityIndicator color="#8B3A52" size="small" />
+              <ActivityIndicator color={OB.ACCENT} size="small" />
             ) : (
-              <MaterialCommunityIcons
-                name="google"
-                size={22}
-                color="#8B3A52"
-              />
+              <MaterialCommunityIcons name="google" size={24} color="#EA4335" />
             )}
-            <Text className="font-semibold text-primary text-xl">
-              Continuer avec Google
-            </Text>
           </Pressable>
 
-          <Link href="/sign-up">
-            <Text className="text-base text-white">
-              Pas de compte ? S&apos;inscrire
-            </Text>
-          </Link>
+          {/* Apple */}
+          <Pressable
+            style={({ pressed }) => ({
+              width: 52, height: 52, borderRadius: 26,
+              borderWidth: 1.5, borderColor: OB.BORDER_DEFAULT,
+              backgroundColor: OB.BG_CARD,
+              alignItems: "center", justifyContent: "center",
+              opacity: pressed ? 0.7 : 1,
+            })}
+          >
+            <MaterialCommunityIcons name="apple" size={24} color="#FFFFFF" />
+          </Pressable>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

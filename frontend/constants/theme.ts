@@ -22,8 +22,8 @@ export const Colors = {
 
 /** Onboarding dark-theme design tokens */
 export const OB = {
-  BG_DARK: '#111114',
-  BG_CARD: '#1E1E24',
+  BG_DARK: '#0A0A0E',
+  BG_CARD: '#1A1A20',
   BG_CARD_SELECTED: '#2A1B22',
   ACCENT: '#E8185F',
   ACCENT_GLOW: 'rgba(232, 24, 95, 0.35)',
