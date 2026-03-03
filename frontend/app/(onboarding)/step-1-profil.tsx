@@ -52,14 +52,20 @@ export default function Step1Profil() {
       labels={LABELS}
       showBackButton={false}
       onNext={() => form.handleSubmit()}
-      isNextDisabled={false} // Always allow click to debug
+      isNextDisabled={false}
       isLoading={isUpdating}
       showNavigationButtons={false}
     >
-      <View className="flex-1 bg-white px-1">
-        <View className="mb-8 mt-2">
-          <Text className="text-3xl font-bold text-gray-900 mb-3">Parlez-nous de vous</Text>
-          <Text className="text-base text-gray-500 leading-relaxed">
+      <View style={{ flex: 1, paddingHorizontal: 4 }}>
+        <View style={{ marginBottom: 28, marginTop: 4 }}>
+          <Text style={{ color: "#E8185F", fontSize: 12, fontWeight: "700", letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 8 }}>
+            ÉTAPE 1 SUR 3
+          </Text>
+          <Text style={{ color: "#FFFFFF", fontSize: 28, fontWeight: "800", lineHeight: 36, marginBottom: 8 }}>
+            {"Parlez-nous de "}
+            <Text style={{ color: "#E8185F" }}>vous</Text>
+          </Text>
+          <Text style={{ color: "#9FA3B0", fontSize: 14, lineHeight: 22 }}>
             Ces informations nous aideront à personnaliser votre expérience
           </Text>
         </View>
@@ -98,8 +104,6 @@ export default function Step1Profil() {
             return (
               <NavigationButtons
                 onNext={() => {
-                  console.log("[Onboarding Debug] NavigationButtons onNext clicked. canSubmitLocal:", canSubmitLocal);
-                  console.log(`[Onboarding Debug] Values at click: name="${name}", age="${age}", gender="${gender}"`);
                   if (!canSubmitLocal) {
                     Alert.alert("Formulaire incomplet", "Veuillez remplir correctement tous les champs.");
                     return;
@@ -109,7 +113,6 @@ export default function Step1Profil() {
                 isNextDisabled={isUpdating}
                 isLoading={isUpdating}
                 showBackButton={false}
-                className="px-0 pt-2 pb-0"
               />
             );
           }}

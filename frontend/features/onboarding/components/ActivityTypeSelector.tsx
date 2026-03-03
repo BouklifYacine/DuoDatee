@@ -1,5 +1,6 @@
 import { View, Text, Pressable } from "react-native";
 import { PREFERRED_TYPES, type PreferredType } from "../schemas";
+import { OB } from "@/constants/theme";
 
 const TYPE_META: Record<PreferredType, { label: string; icon: string }> = {
     bouffe: { label: "Bouffe", icon: "🍽️" },
@@ -7,52 +8,57 @@ const TYPE_META: Record<PreferredType, { label: string; icon: string }> = {
     activite: { label: "Activité", icon: "🎯" },
 };
 
-const PRIMARY = "#8B3A52";
-
 type Props = {
     selected: string[];
     onToggle: (type: PreferredType) => void;
 };
 
-/** Sélection multi (max 3) des types d'activité — style identique au GenderSelector */
 export function ActivityTypeSelector({ selected, onToggle }: Props) {
     return (
-        <View className="mb-6">
-            <View className="flex-row items-center justify-between mb-2">
-                <Text className="text-base font-medium text-gray-700">Types d'activité</Text>
-                <Text className="text-sm text-gray-400">{selected.length}/3</Text>
-            </View>
-            <Text className="text-sm text-gray-500 mb-3">Sélectionnez jusqu'à 3 options</Text>
-            <View className="flex-row gap-4">
-                {PREFERRED_TYPES.map((type) => {
-                    const isSelected = selected.includes(type);
-                    const { label, icon } = TYPE_META[type];
-                    return (
-                        <Pressable
-                            key={type}
-                            className="flex-1 min-h-[56px] flex-row items-center justify-center rounded-xl border-2"
-                            style={{
-                                borderColor: isSelected ? PRIMARY : "#e5e7eb",
-                                backgroundColor: isSelected ? "rgba(139, 58, 82, 0.15)" : "#f9fafb",
-                            }}
-                            onPress={() => onToggle(type)}
-                        >
-                            <Text className="text-xl mr-2">{icon}</Text>
-                            <Text
-                                className="text-base font-medium"
-                                style={{ color: isSelected ? PRIMARY : "#374151" }}
-                            >
-                                {label}
-                            </Text>
-                        </Pressable>
-                    );
-                })}
-            </View>
-            {selected.length > 0 && (
-                <Text className="text-sm mt-2 ml-1 text-green-600">
-                    ✓ {selected.length} sélectionné{selected.length > 1 ? "s" : ""}
+        <View style={{ marginBottom: 20 }}>
+            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                <Text style={{ color: OB.TEXT_SECONDARY, fontSize: 13, fontWeight: "600", letterSpacing: 0.8, textTransform: "uppercase" }}>
+                    Types d'activité
                 </Text>
-            )}
+                <Text style={{ color: OB.TEXT_SECONDARY, fontSize: 12 }}>{selected.length}/3</Text>
+            </View>
+            {PREFERRED_TYPES.map((type) => {
+                const isSelected = selected.includes(type);
+                const { label, icon } = TYPE_META[type];
+                return (
+                    <Pressable
+                        key={type}
+                        onPress={() => onToggle(type)}
+                        style={({ pressed }) => ({
+                            flexDirection: "row",
+                            alignItems: "center",
+                            height: 58,
+                            borderRadius: 14,
+                            borderWidth: 1.5,
+                            borderColor: isSelected ? OB.BORDER_SELECTED : OB.BORDER_DEFAULT,
+                            backgroundColor: isSelected ? OB.BG_CARD_SELECTED : OB.BG_CARD,
+                            paddingHorizontal: 16,
+                            marginBottom: 10,
+                            opacity: pressed ? 0.8 : 1,
+                        })}
+                    >
+                        <Text style={{ fontSize: 22, marginRight: 12 }}>{icon}</Text>
+                        <Text style={{ flex: 1, color: OB.TEXT_PRIMARY, fontSize: 15, fontWeight: "600" }}>
+                            {label}
+                        </Text>
+                        {/* Checkbox circle (multi-select) */}
+                        <View style={{
+                            width: 22, height: 22, borderRadius: 11,
+                            borderWidth: 2,
+                            borderColor: isSelected ? OB.ACCENT : OB.BORDER_DEFAULT,
+                            backgroundColor: isSelected ? OB.ACCENT : "transparent",
+                            alignItems: "center", justifyContent: "center",
+                        }}>
+                            {isSelected && <Text style={{ color: "#fff", fontSize: 12, fontWeight: "700" }}>✓</Text>}
+                        </View>
+                    </Pressable>
+                );
+            })}
         </View>
     );
 }

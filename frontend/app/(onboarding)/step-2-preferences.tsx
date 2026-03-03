@@ -80,10 +80,16 @@ export default function Step2Preferences() {
             isNextDisabled={isUpdating}
             isLoading={isUpdating}
           >
-            <View className="flex-1 bg-white px-1">
-              <View className="mb-10 mt-2">
-                <Text className="text-3xl font-bold text-gray-900 mb-3">Vos préférences</Text>
-                <Text className="text-base text-gray-500 leading-relaxed">
+            <View style={{ flex: 1, paddingHorizontal: 4 }}>
+              <View style={{ marginBottom: 28, marginTop: 4 }}>
+                <Text style={{ color: "#E8185F", fontSize: 12, fontWeight: "700", letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 8 }}>
+                  ÉTAPE 2 SUR 3
+                </Text>
+                <Text style={{ color: "#FFFFFF", fontSize: 28, fontWeight: "800", lineHeight: 36, marginBottom: 8 }}>
+                  {"Vos "}
+                  <Text style={{ color: "#E8185F" }}>préférences</Text>
+                </Text>
+                <Text style={{ color: "#9FA3B0", fontSize: 14, lineHeight: 22 }}>
                   Dites-nous ce que vous aimez pour des suggestions personnalisées
                 </Text>
               </View>

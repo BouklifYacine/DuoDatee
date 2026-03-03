@@ -1,52 +1,68 @@
-import { View, Text, TextInput, Pressable } from "react-native";
+import { View, Text, Pressable } from "react-native";
+import { OB } from "@/constants/theme";
 
 type Props = {
     value: number;
     onChange: (value: number) => void;
 };
 
-/** Stepper +/- pour la distance (1–100 km) */
 export function DistanceStepper({ value, onChange }: Props) {
     const clamp = (n: number) => Math.min(100, Math.max(1, n));
 
     return (
-        <View className="mb-6">
-            <Text className="text-base font-medium text-gray-700 mb-3">Distance maximale</Text>
-            <View className="bg-gray-50 rounded-xl p-4 border-2 border-gray-200">
-                <View className="flex-row items-center justify-center gap-6">
-                    <Pressable
-                        className="w-12 h-12 rounded-full bg-gray-200 items-center justify-center"
-                        onPress={() => onChange(clamp(value - 5))}
-                    >
-                        <Text className="text-xl font-bold text-gray-600">−</Text>
-                    </Pressable>
+        <View style={{ marginBottom: 20 }}>
+            <Text style={{ color: OB.TEXT_SECONDARY, fontSize: 13, fontWeight: "600", letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 10 }}>
+                Distance maximale
+            </Text>
+            <View style={{
+                backgroundColor: OB.BG_CARD,
+                borderRadius: 14,
+                borderWidth: 1.5,
+                borderColor: OB.BORDER_DEFAULT,
+                paddingVertical: 20,
+                paddingHorizontal: 24,
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+            }}>
+                <Pressable
+                    onPress={() => onChange(clamp(value - 5))}
+                    style={({ pressed }) => ({
+                        width: 44, height: 44, borderRadius: 22,
+                        borderWidth: 1.5, borderColor: OB.BORDER_DEFAULT,
+                        backgroundColor: OB.BG_DARK,
+                        alignItems: "center", justifyContent: "center",
+                        opacity: pressed ? 0.7 : 1,
+                    })}
+                >
+                    <Text style={{ color: OB.TEXT_PRIMARY, fontSize: 22, fontWeight: "700", lineHeight: 26 }}>−</Text>
+                </Pressable>
 
-                    <View className="items-center">
-                        <TextInput
-                            style={{
-                                fontSize: 30,
-                                fontWeight: "bold",
-                                color: "#8B3A52",
-                                textAlign: "center",
-                                width: 96,
-                            }}
-                            value={String(value)}
-                            onChangeText={(t) => {
-                                const n = parseInt(t, 10);
-                                if (!isNaN(n)) onChange(clamp(n));
-                            }}
-                            keyboardType="numeric"
-                        />
-                        <Text className="text-sm text-gray-400 mt-1">kilomètres</Text>
-                    </View>
-
-                    <Pressable
-                        className="w-12 h-12 rounded-full bg-primary items-center justify-center"
-                        onPress={() => onChange(clamp(value + 5))}
-                    >
-                        <Text className="text-xl font-bold text-white">+</Text>
-                    </Pressable>
+                <View style={{ alignItems: "center" }}>
+                    <Text style={{ color: OB.ACCENT, fontSize: 36, fontWeight: "800" }}>
+                        {value}
+                    </Text>
+                    <Text style={{ color: OB.TEXT_SECONDARY, fontSize: 13, marginTop: 2 }}>
+                        km
+                    </Text>
                 </View>
+
+                <Pressable
+                    onPress={() => onChange(clamp(value + 5))}
+                    style={({ pressed }) => ({
+                        width: 44, height: 44, borderRadius: 22,
+                        backgroundColor: OB.ACCENT,
+                        alignItems: "center", justifyContent: "center",
+                        opacity: pressed ? 0.7 : 1,
+                        shadowColor: OB.ACCENT,
+                        shadowOffset: { width: 0, height: 4 },
+                        shadowOpacity: 0.4,
+                        shadowRadius: 8,
+                        elevation: 6,
+                    })}
+                >
+                    <Text style={{ color: "#fff", fontSize: 22, fontWeight: "700", lineHeight: 26 }}>+</Text>
+                </Pressable>
             </View>
         </View>
     );

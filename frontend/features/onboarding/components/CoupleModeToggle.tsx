@@ -1,6 +1,5 @@
 import { View, Text, Switch, Pressable } from "react-native";
-
-const PRIMARY = "#8B3A52";
+import { OB } from "@/constants/theme";
 
 type CoupleMode = "create" | "join";
 
@@ -11,7 +10,6 @@ type Props = {
     onChangeMode: (mode: CoupleMode) => void;
 };
 
-/** Toggle "Je suis en couple" + onglets Créer / Rejoindre */
 export function CoupleModeToggle({
     hasCouple,
     coupleMode,
@@ -19,44 +17,66 @@ export function CoupleModeToggle({
     onChangeMode,
 }: Props) {
     return (
-        <View>
-            {/* Switch couple */}
-            <View className="flex-row items-center justify-between mb-6 p-4 bg-gray-50 rounded-xl border-2 border-gray-200">
-                <View className="flex-row items-center">
-                    <Text className="text-2xl mr-3">{hasCouple ? "💑" : "👤"}</Text>
-                    <Text className="text-lg font-medium text-gray-800">Je suis en couple</Text>
+        <View style={{ marginBottom: 20 }}>
+            {/* Switch row */}
+            <View style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+                height: 64,
+                borderRadius: 14,
+                borderWidth: 1.5,
+                borderColor: hasCouple ? OB.BORDER_SELECTED : OB.BORDER_DEFAULT,
+                backgroundColor: hasCouple ? OB.BG_CARD_SELECTED : OB.BG_CARD,
+                paddingHorizontal: 16,
+                marginBottom: 12,
+            }}>
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <Text style={{ fontSize: 22, marginRight: 12 }}>{hasCouple ? "💑" : "👤"}</Text>
+                    <Text style={{ color: OB.TEXT_PRIMARY, fontSize: 15, fontWeight: "600" }}>
+                        Je suis en couple
+                    </Text>
                 </View>
                 <Switch
                     value={hasCouple}
                     onValueChange={onToggleCouple}
-                    trackColor={{ false: "#E5E7EB", true: "#F472B6" }}
-                    thumbColor={hasCouple ? "#DB2777" : "#F9FAFB"}
+                    trackColor={{ false: OB.BORDER_DEFAULT, true: OB.ACCENT_GLOW }}
+                    thumbColor={hasCouple ? OB.ACCENT : OB.TEXT_SECONDARY}
                 />
             </View>
 
-            {/* Tabs Créer / Rejoindre */}
+            {/* Mode tabs */}
             {hasCouple && (
-                <View className="flex-row mb-6 bg-gray-100 rounded-xl p-1">
+                <View style={{
+                    flexDirection: "row",
+                    backgroundColor: OB.BG_CARD,
+                    borderRadius: 12,
+                    borderWidth: 1,
+                    borderColor: OB.BORDER_DEFAULT,
+                    padding: 4,
+                    marginBottom: 12,
+                }}>
                     {(["create", "join"] as const).map((mode) => {
                         const isActive = coupleMode === mode;
                         return (
                             <Pressable
                                 key={mode}
-                                className="flex-1 py-3 px-4 rounded-lg"
-                                style={{
-                                    backgroundColor: isActive ? "#ffffff" : "transparent",
-                                    shadowColor: isActive ? "#000" : "transparent",
-                                    shadowOffset: { width: 0, height: 1 },
-                                    shadowOpacity: isActive ? 0.1 : 0,
-                                    shadowRadius: 2,
-                                    elevation: isActive ? 2 : 0,
-                                }}
                                 onPress={() => onChangeMode(mode)}
+                                style={({ pressed }) => ({
+                                    flex: 1,
+                                    paddingVertical: 10,
+                                    paddingHorizontal: 12,
+                                    borderRadius: 9,
+                                    backgroundColor: isActive ? OB.ACCENT : "transparent",
+                                    alignItems: "center",
+                                    opacity: pressed ? 0.8 : 1,
+                                })}
                             >
-                                <Text
-                                    className="text-center font-medium"
-                                    style={{ color: isActive ? PRIMARY : "#6b7280" }}
-                                >
+                                <Text style={{
+                                    color: isActive ? "#fff" : OB.TEXT_SECONDARY,
+                                    fontWeight: "700",
+                                    fontSize: 14,
+                                }}>
                                     {mode === "create" ? "✨ Créer" : "🔗 Rejoindre"}
                                 </Text>
                             </Pressable>

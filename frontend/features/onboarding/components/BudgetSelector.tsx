@@ -1,5 +1,6 @@
 import { View, Text, Pressable } from "react-native";
 import { PREFERRED_BUDGETS, type PreferredBudget } from "../schemas";
+import { OB } from "@/constants/theme";
 
 const BUDGET_META: Record<PreferredBudget, { label: string; icon: string }> = {
     economique: { label: "Économique", icon: "💰" },
@@ -7,46 +8,53 @@ const BUDGET_META: Record<PreferredBudget, { label: string; icon: string }> = {
     premium: { label: "Premium", icon: "✨" },
 };
 
-const PRIMARY = "#8B3A52";
-
 type Props = {
     selected: string | undefined;
     onSelect: (budget: PreferredBudget) => void;
 };
 
-/** Sélecteur de budget — style identique au GenderSelector */
 export function BudgetSelector({ selected, onSelect }: Props) {
     return (
-        <View className="mb-6">
-            <View className="flex-row items-center mb-3">
-                <Text className="text-base font-medium text-gray-700">Budget</Text>
-                {!!selected && <Text className="ml-2 text-sm text-green-500">✓</Text>}
-            </View>
-            <View className="flex-row gap-4">
-                {PREFERRED_BUDGETS.map((budget) => {
-                    const isSelected = selected === budget;
-                    const { label, icon } = BUDGET_META[budget];
-                    return (
-                        <Pressable
-                            key={budget}
-                            className="flex-1 min-h-[72px] py-3 px-2 rounded-xl border-2 items-center justify-center"
-                            style={{
-                                borderColor: isSelected ? PRIMARY : "#e5e7eb",
-                                backgroundColor: isSelected ? "rgba(139, 58, 82, 0.15)" : "#f9fafb",
-                            }}
-                            onPress={() => onSelect(budget)}
-                        >
-                            <Text className="text-2xl mb-1">{icon}</Text>
-                            <Text
-                                className="text-center text-sm font-medium"
-                                style={{ color: isSelected ? PRIMARY : "#374151" }}
-                            >
-                                {label}
-                            </Text>
-                        </Pressable>
-                    );
-                })}
-            </View>
+        <View style={{ marginBottom: 20 }}>
+            <Text style={{ color: OB.TEXT_SECONDARY, fontSize: 13, fontWeight: "600", letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 10 }}>
+                Budget
+            </Text>
+            {PREFERRED_BUDGETS.map((budget) => {
+                const isSelected = selected === budget;
+                const { label, icon } = BUDGET_META[budget];
+                return (
+                    <Pressable
+                        key={budget}
+                        onPress={() => onSelect(budget)}
+                        style={({ pressed }) => ({
+                            flexDirection: "row",
+                            alignItems: "center",
+                            height: 58,
+                            borderRadius: 14,
+                            borderWidth: 1.5,
+                            borderColor: isSelected ? OB.BORDER_SELECTED : OB.BORDER_DEFAULT,
+                            backgroundColor: isSelected ? OB.BG_CARD_SELECTED : OB.BG_CARD,
+                            paddingHorizontal: 16,
+                            marginBottom: 10,
+                            opacity: pressed ? 0.8 : 1,
+                        })}
+                    >
+                        <Text style={{ fontSize: 22, marginRight: 12 }}>{icon}</Text>
+                        <Text style={{ flex: 1, color: OB.TEXT_PRIMARY, fontSize: 15, fontWeight: "600" }}>
+                            {label}
+                        </Text>
+                        <View style={{
+                            width: 22, height: 22, borderRadius: 11,
+                            borderWidth: 2,
+                            borderColor: isSelected ? OB.ACCENT : OB.BORDER_DEFAULT,
+                            backgroundColor: isSelected ? OB.ACCENT : "transparent",
+                            alignItems: "center", justifyContent: "center",
+                        }}>
+                            {isSelected && <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: "#fff" }} />}
+                        </View>
+                    </Pressable>
+                );
+            })}
         </View>
     );
 }

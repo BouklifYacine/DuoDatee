@@ -1,8 +1,9 @@
-import { KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
+import { KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, View } from "react-native";
 
 import { ProgressBar } from "./ProgressBar";
 import { NavigationButtons } from "./NavigationButtons";
-import { cn } from "~/lib/utils";
+import { Text } from "~/components/ui/text";
+import { OB } from "@/constants/theme";
 
 export type StepContainerProps = {
   children: React.ReactNode;
@@ -19,6 +20,7 @@ export type StepContainerProps = {
   showBackButton?: boolean;
   showProgressBar?: boolean;
   showNavigationButtons?: boolean;
+  onSkip?: () => void;
   className?: string;
   contentClassName?: string;
 };
@@ -27,58 +29,75 @@ export function StepContainer({
   children,
   currentStep,
   totalSteps,
-  labels,
   onBack,
   onNext,
   isBackDisabled = false,
   isNextDisabled = false,
   isLoading = false,
-  nextLabel = "Suivant",
-  backLabel = "Retour",
+  nextLabel = "Continue",
   showBackButton = true,
   showProgressBar = true,
   showNavigationButtons = true,
-  className,
-  contentClassName,
+  onSkip,
 }: StepContainerProps) {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className={cn("flex-1 bg-background", className)}
+      style={{ flex: 1, backgroundColor: OB.BG_DARK }}
       keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
     >
-      {/* Main content area with subtle background */}
-      <View className="flex-1 bg-background">
-        {/* Progress Bar */}
+      <View style={{ flex: 1, backgroundColor: OB.BG_DARK }}>
+
+        {/* Top bar: back button + progress bar */}
         {showProgressBar && (
-          <View className="bg-background border-b border-border/30">
-            <ProgressBar
-              currentStep={currentStep}
-              totalSteps={totalSteps}
-              labels={labels}
-            />
+          <View style={{ flexDirection: "row", alignItems: "center", paddingTop: 52 }}>
+            {showBackButton && onBack ? (
+              <TouchableOpacity
+                onPress={onBack}
+                disabled={isBackDisabled || isLoading}
+                hitSlop={12}
+                style={{
+                  marginLeft: 20,
+                  width: 36,
+                  height: 36,
+                  borderRadius: 999,
+                  backgroundColor: OB.BG_CARD,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderWidth: 1,
+                  borderColor: OB.BORDER_DEFAULT,
+                }}
+              >
+                <Text style={{ color: OB.TEXT_PRIMARY, fontSize: 16, fontWeight: "700" }}>‹</Text>
+              </TouchableOpacity>
+            ) : (
+              // Placeholder to keep alignment when no back button
+              <View style={{ width: 56 }} />
+            )}
+
+            <View style={{ flex: 1 }}>
+              <ProgressBar
+                currentStep={currentStep}
+                totalSteps={totalSteps}
+                onSkip={onSkip}
+              />
+            </View>
           </View>
         )}
 
-        {/* Scrollable Content */}
+        {/* Scrollable content */}
         <ScrollView
-          className="flex-1"
-          contentContainerClassName={cn(
-            "flex-grow px-6 pt-6 pb-8",
-            contentClassName
-          )}
+          style={{ flex: 1 }}
+          contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, paddingTop: 24, paddingBottom: 8 }}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           bounces={false}
         >
-          {/* Content wrapper with card-like styling */}
-          <View className="flex-1">
-            {children}
-          </View>
+          <View style={{ flex: 1 }}>{children}</View>
         </ScrollView>
       </View>
 
-      {/* Navigation Buttons */}
+      {/* Bottom CTA */}
       {showNavigationButtons && (
         <NavigationButtons
           onBack={onBack}
@@ -87,7 +106,6 @@ export function StepContainer({
           isNextDisabled={isNextDisabled}
           isLoading={isLoading}
           nextLabel={nextLabel}
-          backLabel={backLabel}
           showBackButton={showBackButton}
         />
       )}

@@ -1,6 +1,5 @@
 import { View, Text, Pressable } from "react-native";
-
-const PRIMARY = "#8B3A52";
+import { OB } from "@/constants/theme";
 
 type Props<T extends string> = {
     label: string;
@@ -11,7 +10,7 @@ type Props<T extends string> = {
     onSelect: (o: T) => void;
 };
 
-/** Grille générique d'options sélectionnables (une seule sélection) */
+/** Generic single-select option list — dark pill card style */
 export function OptionGrid<T extends string>({
     label,
     options,
@@ -21,35 +20,45 @@ export function OptionGrid<T extends string>({
     onSelect,
 }: Props<T>) {
     return (
-        <View className="mb-5">
-            <View className="flex-row items-center mb-3">
-                <Text className="text-base font-medium text-gray-700">{label}</Text>
-                {!!selected && <Text className="ml-2 text-sm text-green-500">✓</Text>}
-            </View>
-            <View className="flex-row flex-wrap gap-3">
-                {options.map((opt) => {
-                    const isSelected = selected === opt;
-                    return (
-                        <Pressable
-                            key={opt}
-                            className="min-h-12 px-3 py-2 rounded-xl border-2 flex-row items-center"
-                            style={{
-                                borderColor: isSelected ? PRIMARY : "#e5e7eb",
-                                backgroundColor: isSelected ? "rgba(139, 58, 82, 0.15)" : "#f9fafb",
-                            }}
-                            onPress={() => onSelect(opt)}
-                        >
-                            <Text className="text-lg mr-2">{getIcon(opt)}</Text>
-                            <Text
-                                className="font-medium"
-                                style={{ color: isSelected ? PRIMARY : "#374151" }}
-                            >
-                                {getLabel(opt)}
-                            </Text>
-                        </Pressable>
-                    );
-                })}
-            </View>
+        <View style={{ marginBottom: 20 }}>
+            <Text style={{ color: OB.TEXT_SECONDARY, fontSize: 13, fontWeight: "600", letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 10 }}>
+                {label}
+            </Text>
+            {options.map((opt) => {
+                const isSelected = selected === opt;
+                return (
+                    <Pressable
+                        key={opt}
+                        onPress={() => onSelect(opt)}
+                        style={({ pressed }) => ({
+                            flexDirection: "row",
+                            alignItems: "center",
+                            height: 58,
+                            borderRadius: 14,
+                            borderWidth: 1.5,
+                            borderColor: isSelected ? OB.BORDER_SELECTED : OB.BORDER_DEFAULT,
+                            backgroundColor: isSelected ? OB.BG_CARD_SELECTED : OB.BG_CARD,
+                            paddingHorizontal: 16,
+                            marginBottom: 10,
+                            opacity: pressed ? 0.8 : 1,
+                        })}
+                    >
+                        <Text style={{ fontSize: 22, marginRight: 12 }}>{getIcon(opt)}</Text>
+                        <Text style={{ flex: 1, color: OB.TEXT_PRIMARY, fontSize: 15, fontWeight: "600" }}>
+                            {getLabel(opt)}
+                        </Text>
+                        <View style={{
+                            width: 22, height: 22, borderRadius: 11,
+                            borderWidth: 2,
+                            borderColor: isSelected ? OB.ACCENT : OB.BORDER_DEFAULT,
+                            backgroundColor: isSelected ? OB.ACCENT : "transparent",
+                            alignItems: "center", justifyContent: "center",
+                        }}>
+                            {isSelected && <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: "#fff" }} />}
+                        </View>
+                    </Pressable>
+                );
+            })}
         </View>
     );
 }
