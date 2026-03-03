@@ -105,7 +105,7 @@ export default function SignInScreen() {
         <View style={{
           flexDirection: "row",
           backgroundColor: OB.BG_CARD,
-          borderRadius: 12,
+          borderRadius: 999,
           padding: 4,
           marginBottom: 24,
           borderWidth: 1,
@@ -115,7 +115,7 @@ export default function SignInScreen() {
             style={{
               flex: 1,
               paddingVertical: 12,
-              borderRadius: 9,
+              borderRadius: 999,
               backgroundColor: OB.ACCENT,
               alignItems: "center",
             }}
@@ -129,7 +129,7 @@ export default function SignInScreen() {
             style={{
               flex: 1,
               paddingVertical: 12,
-              borderRadius: 9,
+              borderRadius: 999,
               backgroundColor: "transparent",
               alignItems: "center",
             }}
@@ -161,11 +161,11 @@ export default function SignInScreen() {
                   flexDirection: "row",
                   alignItems: "center",
                   height: 52,
-                  borderRadius: 12,
+                  borderRadius: 999,
                   borderWidth: 1.5,
                   borderColor: err ? "#FF6B8A" : OB.BORDER_DEFAULT,
                   backgroundColor: OB.BG_CARD,
-                  paddingHorizontal: 14,
+                  paddingHorizontal: 20,
                 }}>
                   <TextInput
                     style={{ flex: 1, color: OB.TEXT_PRIMARY, fontSize: 14 }}
@@ -206,11 +206,11 @@ export default function SignInScreen() {
                   flexDirection: "row",
                   alignItems: "center",
                   height: 52,
-                  borderRadius: 12,
+                  borderRadius: 999,
                   borderWidth: 1.5,
                   borderColor: err ? "#FF6B8A" : OB.BORDER_DEFAULT,
                   backgroundColor: OB.BG_CARD,
-                  paddingHorizontal: 14,
+                  paddingHorizontal: 20,
                 }}>
                   <TextInput
                     style={{ flex: 1, color: OB.TEXT_PRIMARY, fontSize: 14 }}
@@ -280,31 +280,18 @@ export default function SignInScreen() {
             borderRadius: 999,
             backgroundColor: isPending ? "#3A1A2A" : OB.ACCENT,
             opacity: isPending ? 0.6 : pressed ? 0.9 : 1,
-            shadowColor: OB.ACCENT,
-            shadowOffset: { width: 0, height: 8 },
-            shadowOpacity: isPending ? 0 : 0.45,
-            shadowRadius: 18,
-            elevation: isPending ? 0 : 12,
             gap: 10,
             paddingHorizontal: 20,
             marginBottom: 24,
           })}
         >
-          <View style={{
-            width: 34, height: 34, borderRadius: 17,
-            backgroundColor: "rgba(255,255,255,0.18)",
-            alignItems: "center", justifyContent: "center",
-          }}>
-            <Text style={{ fontSize: 16 }}>❤️</Text>
-          </View>
           {isPending ? (
             <ActivityIndicator color="#fff" size="small" />
           ) : (
-            <Text style={{ flex: 1, textAlign: "center", color: "#fff", fontSize: 16, fontWeight: "700" }}>
+            <Text style={{ textAlign: "center", color: "#fff", fontSize: 16, fontWeight: "700" }}>
               Se connecter
             </Text>
           )}
-          <Text style={{ color: "rgba(255,255,255,0.6)", fontSize: 14, fontWeight: "700", letterSpacing: -1 }}>{`>>>`}</Text>
         </Pressable>
 
         {/* Divider */}
@@ -316,19 +303,6 @@ export default function SignInScreen() {
 
         {/* Social login icons */}
         <View style={{ flexDirection: "row", justifyContent: "center", gap: 16, marginBottom: 16 }}>
-          {/* Facebook */}
-          <Pressable
-            style={({ pressed }) => ({
-              width: 52, height: 52, borderRadius: 26,
-              borderWidth: 1.5, borderColor: OB.BORDER_DEFAULT,
-              backgroundColor: OB.BG_CARD,
-              alignItems: "center", justifyContent: "center",
-              opacity: pressed ? 0.7 : 1,
-            })}
-          >
-            <MaterialCommunityIcons name="facebook" size={24} color="#1877F2" />
-          </Pressable>
-
           {/* Google */}
           <Pressable
             onPress={handleGoogleSignIn}
@@ -346,19 +320,6 @@ export default function SignInScreen() {
             ) : (
               <MaterialCommunityIcons name="google" size={24} color="#EA4335" />
             )}
-          </Pressable>
-
-          {/* Apple */}
-          <Pressable
-            style={({ pressed }) => ({
-              width: 52, height: 52, borderRadius: 26,
-              borderWidth: 1.5, borderColor: OB.BORDER_DEFAULT,
-              backgroundColor: OB.BG_CARD,
-              alignItems: "center", justifyContent: "center",
-              opacity: pressed ? 0.7 : 1,
-            })}
-          >
-            <MaterialCommunityIcons name="apple" size={24} color="#FFFFFF" />
           </Pressable>
         </View>
       </ScrollView>
