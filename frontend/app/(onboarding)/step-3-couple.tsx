@@ -117,16 +117,16 @@ export default function Step3Couple() {
             isLoading={isUpdating}
             nextLabel="Terminer 🎉"
           >
-            <View style={{ flex: 1, paddingHorizontal: 4 }}>
-              <View style={{ marginBottom: 28, marginTop: 4 }}>
-                <Text style={{ color: "#E8185F", fontSize: 12, fontWeight: "700", letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 8 }}>
+            <View className="flex-1 px-1">
+              <View className="mb-7 mt-1">
+                <Text className="text-accent text-xs font-bold tracking-widest uppercase mb-2">
                   ÉTAPE 3 SUR 3
                 </Text>
-                <Text style={{ color: "#FFFFFF", fontSize: 28, fontWeight: "800", lineHeight: 36, marginBottom: 8 }}>
+                <Text className="text-white text-[28px] font-extrabold leading-9 mb-2">
                   {"Votre "}
-                  <Text style={{ color: "#E8185F" }}>situation</Text>
+                  <Text className="text-accent">situation</Text>
                 </Text>
-                <Text style={{ color: "#9FA3B0", fontSize: 14, lineHeight: 22 }}>
+                <Text className="text-text-secondary text-sm leading-[22px]">
                   Configurez votre profil pour des suggestions adaptées
                 </Text>
               </View>
@@ -142,8 +142,8 @@ export default function Step3Couple() {
               />
 
               {!hasCouple && (
-                <View style={{ backgroundColor: "#1E1E24", padding: 16, borderRadius: 14, borderWidth: 1.5, borderColor: "#2E2E38" }}>
-                  <Text style={{ color: "#9FA3B0", lineHeight: 22, fontSize: 14 }}>
+                <View className="bg-card p-4 rounded-2xl border-2 border-border">
+                  <Text className="text-text-secondary text-sm leading-[22px]">
                     💡 Vous pouvez utiliser l'application en solo. Vous pourrez ajouter un partenaire plus tard depuis les paramètres.
                   </Text>
                 </View>
