@@ -1,5 +1,4 @@
 import { View, Text, Switch, Pressable } from "react-native";
-import { OB } from "@/constants/theme";
 
 type CoupleMode = "create" | "join";
 
@@ -17,66 +16,35 @@ export function CoupleModeToggle({
     onChangeMode,
 }: Props) {
     return (
-        <View style={{ marginBottom: 20 }}>
+        <View className="mb-5">
             {/* Switch row */}
-            <View style={{
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "space-between",
-                height: 64,
-                borderRadius: 14,
-                borderWidth: 1.5,
-                borderColor: hasCouple ? OB.BORDER_SELECTED : OB.BORDER_DEFAULT,
-                backgroundColor: hasCouple ? OB.BG_CARD_SELECTED : OB.BG_CARD,
-                paddingHorizontal: 16,
-                marginBottom: 12,
-            }}>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <Text style={{ fontSize: 22, marginRight: 12 }}>{hasCouple ? "💑" : "👤"}</Text>
-                    <Text style={{ color: OB.TEXT_PRIMARY, fontSize: 15, fontWeight: "600" }}>
+            <View className={`flex-row items-center justify-between h-16 rounded-2xl border-2 px-4 mb-3 ${hasCouple ? "border-accent bg-card-selected" : "border-border bg-card"}`}>
+                <View className="flex-row items-center">
+                    <Text className="text-xl mr-3">{hasCouple ? "💑" : "👤"}</Text>
+                    <Text className="text-white text-base font-semibold">
                         Je suis en couple
                     </Text>
                 </View>
                 <Switch
                     value={hasCouple}
                     onValueChange={onToggleCouple}
-                    trackColor={{ false: OB.BORDER_DEFAULT, true: OB.ACCENT_GLOW }}
-                    thumbColor={hasCouple ? OB.ACCENT : OB.TEXT_SECONDARY}
+                    trackColor={{ false: "#2E2E38", true: "rgba(232, 24, 95, 0.35)" }}
+                    thumbColor={hasCouple ? "#E8185F" : "#9FA3B0"}
                 />
             </View>
 
             {/* Mode tabs */}
             {hasCouple && (
-                <View style={{
-                    flexDirection: "row",
-                    backgroundColor: OB.BG_CARD,
-                    borderRadius: 12,
-                    borderWidth: 1,
-                    borderColor: OB.BORDER_DEFAULT,
-                    padding: 4,
-                    marginBottom: 12,
-                }}>
+                <View className="flex-row bg-card rounded-xl border border-border p-1 mb-3">
                     {(["create", "join"] as const).map((mode) => {
                         const isActive = coupleMode === mode;
                         return (
                             <Pressable
                                 key={mode}
                                 onPress={() => onChangeMode(mode)}
-                                style={({ pressed }) => ({
-                                    flex: 1,
-                                    paddingVertical: 10,
-                                    paddingHorizontal: 12,
-                                    borderRadius: 9,
-                                    backgroundColor: isActive ? OB.ACCENT : "transparent",
-                                    alignItems: "center",
-                                    opacity: pressed ? 0.8 : 1,
-                                })}
+                                className={`flex-1 py-2.5 px-3 rounded-lg items-center ${isActive ? "bg-accent" : ""}`}
                             >
-                                <Text style={{
-                                    color: isActive ? "#fff" : OB.TEXT_SECONDARY,
-                                    fontWeight: "700",
-                                    fontSize: 14,
-                                }}>
+                                <Text className={`${isActive ? "text-white" : "text-text-secondary"} font-bold text-sm`}>
                                     {mode === "create" ? "✨ Créer" : "🔗 Rejoindre"}
                                 </Text>
                             </Pressable>
