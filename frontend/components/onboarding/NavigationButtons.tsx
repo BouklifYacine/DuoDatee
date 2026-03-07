@@ -1,6 +1,5 @@
 import { ActivityIndicator, TouchableOpacity, View } from "react-native";
 import { Text } from "~/components/ui/text";
-import { OB } from "@/constants/theme";
 
 export type NavigationButtonsProps = {
   onBack?: () => void;
@@ -22,40 +21,18 @@ export function NavigationButtons({
   const disabled = isNextDisabled || isLoading;
 
   return (
-    <View style={{ paddingHorizontal: 24, paddingBottom: 32, paddingTop: 8 }}>
+    <View className="px-6 pb-8 pt-2">
       <TouchableOpacity
         onPress={!disabled ? onNext : undefined}
         activeOpacity={disabled ? 1 : 0.8}
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "center",
-          height: 60,
-          borderRadius: 999,
-          backgroundColor: disabled ? "#3A1A2A" : OB.ACCENT,
-          opacity: disabled ? 0.6 : 1,
-          // Pink glow
-          shadowColor: OB.ACCENT,
-          shadowOffset: { width: 0, height: 8 },
-          shadowOpacity: disabled ? 0 : 0.45,
-          shadowRadius: 18,
-          elevation: disabled ? 0 : 12,
-          gap: 12,
-          paddingHorizontal: 20,
-        }}
+        className={`flex-row items-center justify-center h-[60px] rounded-full ${disabled ? "bg-[#3A1A2A]" : "bg-accent"} ${disabled ? "opacity-60" : "opacity-100"} ${!disabled ? "shadow-accent/50 shadow-lg" : ""}`}
+        style={{ gap: 12, paddingHorizontal: 20 }}
       >
         {/* Left heart icon orb */}
         <View
-          style={{
-            width: 36,
-            height: 36,
-            borderRadius: 999,
-            backgroundColor: "rgba(255,255,255,0.18)",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
+          className="w-9 h-9 rounded-full bg-white/18 items-center justify-center"
         >
-          <Text style={{ fontSize: 18 }}>❤️</Text>
+          <Text className="text-lg">❤️</Text>
         </View>
 
         {/* Label */}
@@ -63,14 +40,8 @@ export function NavigationButtons({
           <ActivityIndicator color="#ffffff" size="small" />
         ) : (
           <Text
-            style={{
-              flex: 1,
-              textAlign: "center",
-              color: "#FFFFFF",
-              fontSize: 17,
-              fontWeight: "700",
-              letterSpacing: 0.3,
-            }}
+            className="flex-1 text-center text-white text-base font-bold"
+            style={{ letterSpacing: 0.3 }}
           >
             {nextLabel}
           </Text>
@@ -78,12 +49,8 @@ export function NavigationButtons({
 
         {/* Right chevrons */}
         <Text
-          style={{
-            color: "rgba(255,255,255,0.7)",
-            fontSize: 15,
-            fontWeight: "700",
-            letterSpacing: -1,
-          }}
+          className="text-white/70 text-base font-bold"
+          style={{ letterSpacing: -1 }}
         >
           {`>>>`}
         </Text>
