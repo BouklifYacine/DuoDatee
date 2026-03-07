@@ -26,4 +26,16 @@
   --color-accent-foreground: #1a1a1a;
 
   --color-destructive: #ef4444;
+
+  /* Onboarding theme colors */
+  --color-ob-bg-dark: #0A0A0E;
+  --color-ob-bg-card: #1A1A20;
+  --color-ob-bg-card-selected: #2A1B22;
+  --color-ob-accent: #E8185F;
+  --color-ob-accent-glow: rgba(232, 24, 95, 0.35);
+  --color-ob-text-primary: #FFFFFF;
+  --color-ob-text-secondary: #9FA3B0;
+  --color-ob-border-default: #2E2E38;
+  --color-ob-border-selected: #E8185F;
 }
+
