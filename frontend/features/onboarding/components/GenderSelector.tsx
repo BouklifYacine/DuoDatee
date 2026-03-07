@@ -1,5 +1,4 @@
 import { View, Text, Pressable } from "react-native";
-import { OB } from "@/constants/theme";
 
 type Gender = "homme" | "femme";
 
@@ -18,8 +17,8 @@ export function GenderSelector({ value, onChange, submissionAttempts = 0 }: Prop
     const hasError = !value && submissionAttempts > 0;
 
     return (
-        <View style={{ marginBottom: 20 }}>
-            <Text style={{ color: OB.TEXT_SECONDARY, fontSize: 13, fontWeight: "600", letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 10 }}>
+        <View className="mb-5">
+            <Text className="text-text-secondary text-[13px] font-semibold tracking-wider uppercase mb-2.5">
                 Genre
             </Text>
             {OPTIONS.map((opt) => {
@@ -28,38 +27,21 @@ export function GenderSelector({ value, onChange, submissionAttempts = 0 }: Prop
                     <Pressable
                         key={opt.value}
                         onPress={() => onChange(opt.value)}
-                        style={({ pressed }) => ({
-                            flexDirection: "row",
-                            alignItems: "center",
-                            height: 58,
-                            borderRadius: 14,
-                            borderWidth: 1.5,
-                            borderColor: isSelected ? OB.BORDER_SELECTED : OB.BORDER_DEFAULT,
-                            backgroundColor: isSelected ? OB.BG_CARD_SELECTED : OB.BG_CARD,
-                            paddingHorizontal: 16,
-                            marginBottom: 10,
-                            opacity: pressed ? 0.8 : 1,
-                        })}
+                        className={`flex-row items-center h-14 rounded-2xl border-2 px-4 mb-2.5 ${isSelected ? "border-accent bg-card-selected" : "border-border bg-card"}`}
                     >
-                        <Text style={{ fontSize: 22, marginRight: 12 }}>{opt.icon}</Text>
-                        <Text style={{ flex: 1, color: OB.TEXT_PRIMARY, fontSize: 15, fontWeight: "600" }}>
+                        <Text className="text-xl mr-3">{opt.icon}</Text>
+                        <Text className="flex-1 text-white text-base font-semibold">
                             {opt.label}
                         </Text>
                         {/* Radio circle */}
-                        <View style={{
-                            width: 22, height: 22, borderRadius: 11,
-                            borderWidth: 2,
-                            borderColor: isSelected ? OB.ACCENT : OB.BORDER_DEFAULT,
-                            backgroundColor: isSelected ? OB.ACCENT : "transparent",
-                            alignItems: "center", justifyContent: "center",
-                        }}>
-                            {isSelected && <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: "#fff" }} />}
+                        <View className={`w-[22px] h-[22px] rounded-full border-2 ${isSelected ? "border-accent bg-accent" : "border-border bg-transparent"} items-center justify-center`}>
+                            {isSelected && <View className="w-2 h-2 rounded-sm bg-white" />}
                         </View>
                     </Pressable>
                 );
             })}
             {hasError && (
-                <Text style={{ color: "#FF6B8A", fontSize: 12, marginTop: 4 }}>
+                <Text className="text-pink-400 text-xs mt-1">
                     Veuillez sélectionner votre genre
                 </Text>
             )}
