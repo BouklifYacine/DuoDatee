@@ -56,16 +56,16 @@ export default function Step1Profil() {
       isLoading={isUpdating}
       showNavigationButtons={false}
     >
-      <View style={{ flex: 1, paddingHorizontal: 4 }}>
-        <View style={{ marginBottom: 28, marginTop: 4 }}>
-          <Text style={{ color: "#E8185F", fontSize: 12, fontWeight: "700", letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 8 }}>
+      <View className="flex-1 px-1">
+        <View className="mb-7 mt-1">
+          <Text className="text-accent text-xs font-bold tracking-widest uppercase mb-2">
             ÉTAPE 1 SUR 3
           </Text>
-          <Text style={{ color: "#FFFFFF", fontSize: 28, fontWeight: "800", lineHeight: 36, marginBottom: 8 }}>
+          <Text className="text-white text-[28px] font-extrabold leading-9 mb-2">
             {"Parlez-nous de "}
-            <Text style={{ color: "#E8185F" }}>vous</Text>
+            <Text className="text-accent">vous</Text>
           </Text>
-          <Text style={{ color: "#9FA3B0", fontSize: 14, lineHeight: 22 }}>
+          <Text className="text-text-secondary text-sm leading-[22px]">
             Ces informations nous aideront à personnaliser votre expérience
           </Text>
         </View>
