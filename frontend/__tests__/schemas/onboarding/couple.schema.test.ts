@@ -7,7 +7,7 @@ import {
   RELATIONSHIP_DURATIONS,
   RELATIONSHIP_STATUSES,
   LIVING_SITUATIONS
-} from "../../../features/onboarding/schemas/couple.schema";
+} from "../../../features/onboarding/schemas";
 
 describe("createCoupleSchema - Create Couple Validation", () => {
   describe("Valid inputs", () => {

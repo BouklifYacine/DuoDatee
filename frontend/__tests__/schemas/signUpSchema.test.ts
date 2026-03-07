@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { signUpSchema, validateField, validateSignUpForm } from "../../schemas/signUpSchema";
+import { signUpSchema, validateSignUpField, validateSignUpForm } from "../../schemas";
 
 describe("signUpSchema - Validation", () => {
   describe("Valid inputs", () => {
@@ -153,36 +153,36 @@ describe("signUpSchema - Validation", () => {
   });
 });
 
-describe("validateField - Single field validation", () => {
+describe("validateSignUpField - Single field validation", () => {
   it("should return undefined for valid name", () => {
-    const result = validateField("name", "JohnDoe");
+    const result = validateSignUpField("name", "JohnDoe");
     expect(result).toBeUndefined();
   });
 
   it("should return error message for short name", () => {
-    const result = validateField("name", "Jo");
+    const result = validateSignUpField("name", "Jo");
     expect(result).toBeDefined();
     expect(result).toContain("3");
   });
 
   it("should return undefined for valid email", () => {
-    const result = validateField("email", "john@example.com");
+    const result = validateSignUpField("email", "john@example.com");
     expect(result).toBeUndefined();
   });
 
   it("should return error message for invalid email", () => {
-    const result = validateField("email", "invalid");
+    const result = validateSignUpField("email", "invalid");
     expect(result).toBeDefined();
     expect(result).toContain("Email");
   });
 
   it("should return undefined for valid password", () => {
-    const result = validateField("password", "password123");
+    const result = validateSignUpField("password", "password123");
     expect(result).toBeUndefined();
   });
 
   it("should return error message for short password", () => {
-    const result = validateField("password", "123");
+    const result = validateSignUpField("password", "123");
     expect(result).toBeDefined();
     expect(result).toContain("6");
   });

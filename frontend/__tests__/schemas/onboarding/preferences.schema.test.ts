@@ -4,7 +4,7 @@ import {
   PreferencesInput,
   PREFERRED_TYPES,
   PREFERRED_BUDGETS 
-} from "../../../features/onboarding/schemas/preferences.schema";
+} from "../../../features/onboarding/schemas";
 
 describe("preferencesSchema - Onboarding Preferences Validation", () => {
   describe("Valid inputs", () => {
