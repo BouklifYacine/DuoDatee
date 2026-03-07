@@ -1,5 +1,4 @@
 import { View, Text, TextInput } from "react-native";
-import { OB } from "@/constants/theme";
 
 type Props = {
     value: string;
@@ -11,46 +10,29 @@ export function InviteCodeInput({ value, onChange }: Props) {
     const hasInput = value.length > 0;
 
     const borderColor = !hasInput
-        ? OB.BORDER_DEFAULT
+        ? "border-border"
         : isComplete
-            ? "#4CAF82"
-            : OB.ACCENT;
+            ? "border-green-500"
+            : "border-accent";
 
     return (
-        <View style={{ marginBottom: 20 }}>
-            <Text style={{ color: OB.TEXT_SECONDARY, fontSize: 13, fontWeight: "600", letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 10 }}>
+        <View className="mb-5">
+            <Text className="text-text-secondary text-[13px] font-semibold tracking-wider uppercase mb-2.5">
                 Code d'invitation
             </Text>
-            <View style={{
-                flexDirection: "row",
-                alignItems: "center",
-                borderRadius: 14,
-                paddingHorizontal: 16,
-                height: 72,
-                borderWidth: 1.5,
-                borderColor,
-                backgroundColor: OB.BG_CARD,
-            }}>
-                <Text style={{ fontSize: 22, marginRight: 12 }}>🔐</Text>
+            <View className={`flex-row items-center rounded-2xl px-4 h-[72px] border-2 ${borderColor} bg-card`}>
+                <Text className="text-xl mr-3">🔐</Text>
                 <TextInput
-                    style={{
-                        flex: 1,
-                        fontSize: 26,
-                        textAlign: "center",
-                        textTransform: "uppercase",
-                        letterSpacing: 8,
-                        fontWeight: "800",
-                        color: OB.TEXT_PRIMARY,
-                    }}
+                    className="flex-1 text-center text-2xl tracking-[8px] font-extrabold uppercase text-white"
                     placeholder="XXXXXX"
-                    placeholderTextColor={OB.TEXT_SECONDARY}
+                    placeholderTextColor="#9FA3B0"
                     value={value}
                     onChangeText={(t) => onChange(t.toUpperCase().slice(0, 6))}
                     maxLength={6}
                     autoCapitalize="characters"
                 />
             </View>
-            <Text style={{ color: OB.TEXT_SECONDARY, fontSize: 12, marginTop: 6, marginLeft: 4 }}>
+            <Text className="text-text-secondary text-xs mt-1.5 ml-1">
                 {isComplete
                     ? "✓ Code prêt"
                     : `${value.length}/6 — demandez le code à votre partenaire`}
