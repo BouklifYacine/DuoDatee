@@ -7,7 +7,8 @@ export const signUpSchema = z.object({
   name: z
     .string()
     .trim()
-    .min(3, { error: "Le nom doit contenir au moins 3 caractères" }),
+    .min(3, { error: "Le nom doit contenir au moins 3 caractères" })
+    .max(20, { error: "Le nom doit contenir au plus 20 caractères" }),
   email: z
     .string()
     .trim()

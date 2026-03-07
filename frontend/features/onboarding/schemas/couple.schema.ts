@@ -43,8 +43,9 @@ export type CreateCouplePayload = z.output<typeof createCoupleSchema>;
 export const joinCoupleSchema = z.object({
   inviteCode: z
     .string({ error: "Le code est requis" })
+    .toUpperCase()
     .length(6, { error: "Le code d'invitation doit contenir 6 caractères" })
-    .toUpperCase(),
+    .regex(/^[A-Z0-9]+$/, { message: "Le code ne doit contenir que des lettres et chiffres" }),
 });
 
 export type JoinCoupleInput = z.input<typeof joinCoupleSchema>;

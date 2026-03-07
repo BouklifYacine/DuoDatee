@@ -52,7 +52,8 @@ describe("cn - Class Name Utility", () => {
   });
 
   it("should handle numbers (converted to string)", () => {
+    // Numbers are converted to strings - clsx adds space between arguments
     const result = cn("p-", 4);
-    expect(result).toBe("p-4");
+    expect(result).toBe("p- 4");
   });
 });
