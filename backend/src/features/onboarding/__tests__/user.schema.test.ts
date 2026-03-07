@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { updateProfilSchema } from "../onboardinguser/user.schema";
+import { updateProfilSchema } from "../onboarding-user/user.schema";
 
 describe("updateProfilSchema - Onboarding User Validation", () => {
   describe("Valid inputs", () => {

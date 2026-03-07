@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { updateCoupleSchema } from "../onboardingcouple/couple.schema";
+import { updateCoupleSchema } from "../onboarding-couple/couple.schema";
 
 describe("updateCoupleSchema - Onboarding Couple Validation", () => {
   describe("Valid inputs", () => {

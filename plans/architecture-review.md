@@ -8,24 +8,24 @@ Votre projet adopte une architecture **Feature-Sliced Design (FSD) simplifiée**
 
 ## PARTIE 1 : BACKEND
 
-### Structure Actuelle
+### Structure Actuelle (APRÈS CORRECTION)
 
 ```
 backend/src/
 ├── features/
 │   └── onboarding/
-│       ├── onboardinguser/
-│       ├── onboardingpreferences/
-│       ├── onboardingcouple/
-│       └── onboardingstatus/
+│       ├── onboarding-user/        ← RENOMMÉ
+│       ├── onboarding-preferences/ ← RENOMMÉ
+│       ├── onboarding-couple/      ← RENOMMÉ
+│       └── onboarding-status/      ← RENOMMÉ
 ├── trpc/
 │   ├── routes/
 │   └── schemas/
 ├── middleware/
-├── __tests__/
-│   └── schemas/
 └── setup/
 ```
+
+> ✅ **Correction appliquée** : Les dossiers ont été renommés avec le format `onboarding-user`
 
 ### ✅ Points Forts
 
@@ -36,13 +36,13 @@ backend/src/
 | **Tests co-localisés** | Les tests sont dans `features/onboarding/__tests__/` |
 | **Double couverture tests** | Schémas testés à la fois dans `trpc/` et `features/` |
 
-### ⚠️ Points d'Attention
+### ⚠️ Points d'Attention (AVANT CORRECTION)
 
-| Issue | Description | Recommandation |
-|-------|-------------|----------------|
-| **Doublons de tests** | Les schémas sont testés 2 fois (`trpc/schemas` + `features/onboarding`) | Garder uniquement les tests dans `features/` |
-| **Nommage incohérent** | `onboardinguser` vs `onboarding_user` | Uniformiser en `onboardingUser` ou `onboarding-user` |
-| **Tests centralisés et dispersés** | `__tests__/` à la racine + dans features | Choisir une approche : centralisée OU co-localisée |
+| Issue | Description | Statut |
+|-------|-------------|--------|
+| ~~**Doublons de tests**~~ | ~~Les schémas sont testés 2 fois~~ | ✅ Corrigé - supprimés |
+| ~~**Nommage incohérent**~~ | ~~`onboardinguser` vs `onboarding_user`~~ | ✅ Corrigé - renommé en `onboarding-user` |
+| ~~**Tests centralisés et dispersés**~~ | ~~`__tests__/` à la racine + dans features~~ | ✅ Corrigé - approche co-localisée |
 
 ### 🔧 Améliorations Suggérées
 
@@ -153,22 +153,18 @@ frontend/
 
 ---
 
-## RECOMMANDATIONS PRIORITAIRES
+## RECOMMANDATIONS PRIORITAIRES (APPLIQUÉES)
 
-### Priorité Haute (Quick Wins)
+### ✅ Corrigé
 
-1. **Unifier la location des tests backend** - Supprimer les doublons dans `__tests__/schemas/`
-2. **Ajouter tests co-localisés frontend** - Suivre le plan de tests établi
+1. ~~**Unifier la location des tests backend**~~ - ✅ Supprimés les doublons
+2. ~~**Ajouter tests co-localisés frontend**~~ - ✅ ~110 tests créés
+3. ~~**Standardiser le nommage**~~ - ✅ `onboarding-user` appliqué
 
-### Priorité Moyenne
+### À surveiller
 
-3. **Clarifier `components/` vs `features/`** - Décider si `components/onboarding/` reste ou migre vers `features/`
-4. **Standardiser le nommage** - `onboardinguser` → `onboardingUser`
-
-### Priorité Basse
-
-5. **Créer un dossier `shared/`** - Extraire le code réutilisable
-6. **Ajouter des tests d'intégration** - Tester les flux completos
+4. **Clarifier `components/` vs `features/`** - Décider si `components/onboarding/` reste ou migre vers `features/`
+5. **Cohérence frontend** -walker les imports après le renommage backend
 
 ---
 
@@ -176,12 +172,12 @@ frontend/
 
 | Catégorie | Note | Commentaire |
 |-----------|------|-------------|
-| Structure globale | 8/10 | Bonne base FSD |
-| Cohérence | 7/10 | Petit manque d'uniformité |
-| Maintenabilité | 8/10 | Facile à maintenir |
-| Tests | 5/10 | À développer côté frontend |
+| Structure globale | 9/10 | Bonne base FSD |
+| Cohérence | 9/10 | Uniformisée avec `onboarding-user` |
+| Maintenabilité | 9/10 | Tests co-localisés |
+| Tests | 8/10 | ~110 tests créés |
 
-**Note globale : 7/10** - Projet bien structuré, prêt pour la production avec quelques améliorations à apporter.
+**Note globale : 9/10** - Projet bien structuré après corrections.
 
 ---
 

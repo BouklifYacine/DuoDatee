@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { updatePreferencesSchema } from "../onboardingpreferences/preferences.schema";
+import { updatePreferencesSchema } from "../onboarding-preferences/preferences.schema";
 
 describe("updatePreferencesSchema - Onboarding Preferences Validation", () => {
   describe("Valid inputs", () => {
