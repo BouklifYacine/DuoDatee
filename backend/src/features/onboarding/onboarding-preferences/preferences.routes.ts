@@ -1,11 +1,11 @@
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { requireAuth } from "../../../middleware/AuthMiddleware";
-import type { AuthVariables } from "../../../middleware/AuthMiddleware";
+import type { ProtectedAuthVariables } from "../../../middleware/AuthMiddleware";
 import { updatePreferencesSchema } from "./preferences.schema";
 import { PreferencesService } from "./preferences.services";
 
-const preferencesRoutes = new Hono<{ Variables: AuthVariables }>();
+const preferencesRoutes = new Hono<{ Variables: ProtectedAuthVariables }>();
 
 preferencesRoutes.patch("/", requireAuth, async (c) => {
   const body = await c.req.json();
@@ -18,7 +18,7 @@ preferencesRoutes.patch("/", requireAuth, async (c) => {
     });
   }
 
-  const user = c.get("user")!;
+  const user = c.get("user");
   const updated = await PreferencesService.update(user.id, parseResult.data);
   return c.json(updated, 200);
 });

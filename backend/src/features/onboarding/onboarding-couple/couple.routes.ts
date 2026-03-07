@@ -1,11 +1,11 @@
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { requireAuth } from "../../../middleware/AuthMiddleware";
-import type { AuthVariables } from "../../../middleware/AuthMiddleware";
+import type { ProtectedAuthVariables } from "../../../middleware/AuthMiddleware";
 import { updateCoupleSchema } from "./couple.schema";
 import { CoupleService } from "./couple.services";
 
-const coupleRoutes = new Hono<{ Variables: AuthVariables }>();
+const coupleRoutes = new Hono<{ Variables: ProtectedAuthVariables }>();
 
 coupleRoutes.patch("/", requireAuth, async (c) => {
   const body = await c.req.json();
@@ -18,7 +18,7 @@ coupleRoutes.patch("/", requireAuth, async (c) => {
     });
   }
 
-  const user = c.get("user")!;
+  const user = c.get("user");
   const couple = await CoupleService.updateOnboarding(user.id, parseResult.data);
   return c.json(couple, 200);
 });

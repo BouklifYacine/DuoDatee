@@ -11,6 +11,15 @@ export type AuthVariables = {
 };
 
 /**
+ * Type pour les routes protégées par requireAuth
+ * user et session sont garantis non-null car requireAuth vérifie l'authentification
+ */
+export type ProtectedAuthVariables = {
+  user: AuthUser;
+  session: AuthSession;
+};
+
+/**
  * Middleware : injecte user et session dans le contexte pour toutes les requêtes.
  * Si pas de session valide → user = null, session = null
  */
