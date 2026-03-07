@@ -21,6 +21,7 @@
     "@tanstack/react-form": "^1.28.3",
     "@tanstack/react-query": "^5.90.21",
     "@tanstack/zod-form-adapter": "^0.42.1",
+    "@testing-library/react-native": "^13.3.3",
     "@trpc/client": "^11.11.0",
     "@trpc/react-query": "^11.11.0",
     "better-auth": "^1.4.18",
