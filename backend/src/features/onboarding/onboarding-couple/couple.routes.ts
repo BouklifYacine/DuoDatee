@@ -18,10 +18,7 @@ coupleRoutes.patch("/", requireAuth, async (c) => {
     });
   }
 
-  const user = c.get("user");
-  if (!user) {
-    return c.json({ error: "Non authentifié", code: "UNAUTHORIZED" }, 401);
-  }
+  const user = c.get("user")!;
   const couple = await CoupleService.updateOnboarding(user.id, parseResult.data);
   return c.json(couple, 200);
 });
