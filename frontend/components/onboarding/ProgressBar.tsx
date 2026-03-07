@@ -1,6 +1,5 @@
 import { TouchableOpacity, View } from "react-native";
 import { Text } from "~/components/ui/text";
-import { OB } from "@/constants/theme";
 
 export type ProgressBarProps = {
   currentStep: number;
@@ -19,24 +18,19 @@ export function ProgressBar({
   const safeStep = Math.max(0, Math.min(currentStep, totalSteps - 1));
 
   return (
-    <View style={{ paddingHorizontal: 24, paddingTop: 16, paddingBottom: 8 }}>
+    <View className="px-6 pt-4 pb-2">
       {/* Top row: segments + Skip */}
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+      <View className="flex-row items-center gap-1.5">
         {Array.from({ length: totalSteps }).map((_, i) => (
           <View
             key={i}
-            style={{
-              flex: 1,
-              height: 4,
-              borderRadius: 999,
-              backgroundColor: i <= safeStep ? OB.ACCENT : OB.BORDER_DEFAULT,
-            }}
+            className={`flex-1 h-1 rounded-full ${i <= safeStep ? "bg-accent" : "bg-border"}`}
           />
         ))}
 
         {onSkip && (
-          <TouchableOpacity onPress={onSkip} hitSlop={12} style={{ marginLeft: 8 }}>
-            <Text style={{ color: OB.TEXT_SECONDARY, fontSize: 14, fontWeight: "600" }}>
+          <TouchableOpacity onPress={onSkip} hitSlop={12} className="ml-2">
+            <Text className="text-text-secondary text-sm font-semibold">
               Skip
             </Text>
           </TouchableOpacity>
