@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { View, Text, TextInput } from "react-native";
-import { OB } from "@/constants/theme";
 
 type Props = {
     field: any;
@@ -27,33 +26,24 @@ export function ValidatedTextField({
     const showSuccess = !error && hasValue && isTouched;
 
     const borderColor = showError
-        ? "#FF6B8A"
+        ? "border-pink-400"
         : showSuccess
-            ? "#4CAF82"
+            ? "border-green-500"
             : focused
-                ? OB.ACCENT
-                : OB.BORDER_DEFAULT;
+                ? "border-accent"
+                : "border-border";
 
     return (
-        <View style={{ marginBottom: 20 }}>
-            <Text style={{ color: OB.TEXT_SECONDARY, fontSize: 13, fontWeight: "600", letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 8 }}>
+        <View className="mb-5">
+            <Text className="text-text-secondary text-[13px] font-semibold tracking-wider uppercase mb-2">
                 {label}
             </Text>
-            <View style={{
-                flexDirection: "row",
-                alignItems: "center",
-                borderWidth: 1.5,
-                borderRadius: 14,
-                borderColor,
-                backgroundColor: OB.BG_CARD,
-                paddingHorizontal: 16,
-                height: 58,
-            }}>
-                <Text style={{ fontSize: 20, marginRight: 12 }}>{icon}</Text>
+            <View className={`flex-row items-center border-2 rounded-2xl px-4 h-14 bg-card ${borderColor}`}>
+                <Text className="text-xl mr-3">{icon}</Text>
                 <TextInput
-                    style={{ flex: 1, fontSize: 15, color: OB.TEXT_PRIMARY }}
+                    className="flex-1 text-base text-white"
                     placeholder={placeholder}
-                    placeholderTextColor={OB.TEXT_SECONDARY}
+                    placeholderTextColor="#9FA3B0"
                     value={field.state.value}
                     onChangeText={field.handleChange}
                     onBlur={() => { field.handleBlur(); setFocused(false); }}
@@ -61,10 +51,10 @@ export function ValidatedTextField({
                     keyboardType={keyboardType}
                     autoCapitalize={autoCapitalize}
                 />
-                {showSuccess && <Text style={{ color: "#4CAF82", fontSize: 16 }}>✓</Text>}
+                {showSuccess && <Text className="text-green-500 text-base">✓</Text>}
             </View>
             {showError && (
-                <Text style={{ color: "#FF6B8A", fontSize: 12, marginTop: 4, marginLeft: 4 }}>
+                <Text className="text-pink-400 text-xs mt-1 ml-1">
                     {error}
                 </Text>
             )}
