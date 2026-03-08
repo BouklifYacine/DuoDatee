@@ -51,7 +51,7 @@ export default function Step2Preferences() {
           preferredTypes.length > 0 &&
           !!preferredBudget &&
           preferredDistance >= 1 &&
-          preferredDistance <= 100;
+          preferredDistance <= 20;
 
         const toggleType = (type: PreferredType) => {
           if (preferredTypes.includes(type)) {

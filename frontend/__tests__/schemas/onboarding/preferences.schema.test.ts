@@ -12,7 +12,7 @@ describe("preferencesSchema - Onboarding Preferences Validation", () => {
       const validInput: PreferencesInput = {
         preferredTypes: ["bouffe", "boire"],
         preferredBudget: "moyen",
-        preferredDistance: 25,
+        preferredDistance: 15,
       };
 
       const result = preferencesSchema.safeParse(validInput);
@@ -20,7 +20,7 @@ describe("preferencesSchema - Onboarding Preferences Validation", () => {
       if (result.success) {
         expect(result.data.preferredTypes).toEqual(["bouffe", "boire"]);
         expect(result.data.preferredBudget).toBe("moyen");
-        expect(result.data.preferredDistance).toBe(25);
+        expect(result.data.preferredDistance).toBe(15);
       }
     });
 
@@ -39,7 +39,7 @@ describe("preferencesSchema - Onboarding Preferences Validation", () => {
       const validInput: PreferencesInput = {
         preferredTypes: ["bouffe", "boire", "activite"],
         preferredBudget: "premium",
-        preferredDistance: 50,
+        preferredDistance: 15,
       };
 
       const result = preferencesSchema.safeParse(validInput);
@@ -57,11 +57,11 @@ describe("preferencesSchema - Onboarding Preferences Validation", () => {
       expect(result.success).toBe(true);
     });
 
-    it("should accept maximum distance (100 km)", () => {
+    it("should accept maximum distance (20 km)", () => {
       const validInput: PreferencesInput = {
         preferredTypes: ["bouffe"],
         preferredBudget: "moyen",
-        preferredDistance: 100,
+        preferredDistance: 20,
       };
 
       const result = preferencesSchema.safeParse(validInput);
@@ -73,7 +73,7 @@ describe("preferencesSchema - Onboarding Preferences Validation", () => {
         const validInput: PreferencesInput = {
           preferredTypes: ["bouffe"],
           preferredBudget: budget,
-          preferredDistance: 25,
+          preferredDistance: 15,
         };
 
         const result = preferencesSchema.safeParse(validInput);
@@ -86,7 +86,7 @@ describe("preferencesSchema - Onboarding Preferences Validation", () => {
         const validInput: PreferencesInput = {
           preferredTypes: [type],
           preferredBudget: "moyen",
-          preferredDistance: 25,
+          preferredDistance: 15,
         };
 
         const result = preferencesSchema.safeParse(validInput);
@@ -100,7 +100,7 @@ describe("preferencesSchema - Onboarding Preferences Validation", () => {
       const invalidInput: PreferencesInput = {
         preferredTypes: [],
         preferredBudget: "moyen",
-        preferredDistance: 25,
+        preferredDistance: 15,
       };
 
       const result = preferencesSchema.safeParse(invalidInput);
@@ -114,7 +114,7 @@ describe("preferencesSchema - Onboarding Preferences Validation", () => {
       const invalidInput: PreferencesInput = {
         preferredTypes: ["bouffe", "boire", "activite", "bouffe"],
         preferredBudget: "moyen",
-        preferredDistance: 25,
+        preferredDistance: 15,
       };
 
       const result = preferencesSchema.safeParse(invalidInput);
@@ -125,7 +125,7 @@ describe("preferencesSchema - Onboarding Preferences Validation", () => {
       const invalidInput = {
         preferredTypes: ["invalid_type"],
         preferredBudget: "moyen",
-        preferredDistance: 25,
+        preferredDistance: 15,
       };
 
       const result = preferencesSchema.safeParse(invalidInput);
@@ -136,7 +136,7 @@ describe("preferencesSchema - Onboarding Preferences Validation", () => {
       const invalidInput = {
         preferredTypes: ["bouffe"],
         preferredBudget: "invalid_budget",
-        preferredDistance: 25,
+        preferredDistance: 15,
       };
 
       const result = preferencesSchema.safeParse(invalidInput);
@@ -157,11 +157,11 @@ describe("preferencesSchema - Onboarding Preferences Validation", () => {
       }
     });
 
-    it("should reject distance more than 100", () => {
+    it("should reject distance more than 20", () => {
       const invalidInput: PreferencesInput = {
         preferredTypes: ["bouffe"],
         preferredBudget: "moyen",
-        preferredDistance: 101,
+        preferredDistance: 21,
       };
 
       const result = preferencesSchema.safeParse(invalidInput);
@@ -193,7 +193,7 @@ describe("preferencesSchema - Onboarding Preferences Validation", () => {
     it("should reject missing preferredTypes", () => {
       const invalidInput = {
         preferredBudget: "moyen",
-        preferredDistance: 25,
+        preferredDistance: 15,
       };
 
       const result = preferencesSchema.safeParse(invalidInput);
@@ -203,7 +203,7 @@ describe("preferencesSchema - Onboarding Preferences Validation", () => {
     it("should reject missing preferredBudget", () => {
       const invalidInput = {
         preferredTypes: ["bouffe"],
-        preferredDistance: 25,
+        preferredDistance: 15,
       };
 
       const result = preferencesSchema.safeParse(invalidInput);

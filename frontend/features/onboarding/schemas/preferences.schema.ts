@@ -15,7 +15,7 @@ export const preferencesSchema = z.object({
   preferredDistance: z
     .number({ error: "La distance doit être un nombre" })
     .min(1, { error: "La distance minimale est de 1 km" })
-    .max(100, { error: "La distance maximale est de 100 km" })
+    .max(20, { error: "La distance maximale est de 20 km" })
     .int({ error: "La distance doit être un nombre entier" }),
 });
 

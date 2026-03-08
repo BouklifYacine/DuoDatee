@@ -123,18 +123,17 @@ describe("updateProfilSchema - Onboarding User Validation", () => {
       expect(result.success).toBe(false);
     });
 
-    it("should accept whitespace-only name (will be trimmed)", () => {
+    it("should reject whitespace-only name (trimmed to empty)", () => {
       const input = {
         name: "   ",
         age: 25,
       };
       
-      // Zod's .trim() only trims, but min(3) is checked after
-      // So "   " passes .trim() but fails min(3) - wait, it actually passes in this version
-      // The schema uses .trim() but the actual validation behavior depends on Zod version
+      // Zod's .trim() is applied first, then min(3) is checked
+      // So "   " becomes "" after trim, which fails min(3)
       const result = updateProfilSchema.safeParse(input);
-      // The test should match actual behavior
-      expect(result.success).toBe(true);
+      // After trimming, the name is empty, so min(3) fails
+      expect(result.success).toBe(false);
     });
   });
 

@@ -61,13 +61,13 @@ describe("DistanceStepper", () => {
   });
 
   describe("Limites", () => {
-    it("ne dépasse pas 100 au clic sur +", () => {
+    it("ne dépasse pas 20 au clic sur +", () => {
       const onChange = vi.fn();
-      render(<DistanceStepper {...defaultProps} value={100} onChange={onChange} />);
+      render(<DistanceStepper {...defaultProps} value={20} onChange={onChange} />);
 
       fireEvent.press(screen.getByText("+"));
 
-      expect(onChange).toHaveBeenCalledWith(100);
+      expect(onChange).toHaveBeenCalledWith(20);
     });
 
     it("ne descend pas en dessous de 1 au clic sur −", () => {
@@ -105,10 +105,10 @@ describe("DistanceStepper", () => {
       expect(screen.getByText("0")).toBeTruthy();
     });
 
-    it("affiche 100 comme valeur maximale", () => {
-      render(<DistanceStepper {...defaultProps} value={100} />);
+    it("affiche 20 comme valeur maximale", () => {
+      render(<DistanceStepper {...defaultProps} value={20} />);
 
-      expect(screen.getByText("100")).toBeTruthy();
+      expect(screen.getByText("20")).toBeTruthy();
     });
   });
 });

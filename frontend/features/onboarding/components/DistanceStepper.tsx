@@ -6,7 +6,7 @@ type Props = {
 };
 
 export function DistanceStepper({ value, onChange }: Props) {
-    const clamp = (n: number) => Math.min(100, Math.max(1, n));
+    const clamp = (n: number) => Math.min(20, Math.max(1, n));
 
     return (
         <View className="mb-5">
