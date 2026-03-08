@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../index";
 import { prisma } from "../../../lib/prisma";
-import { updateProfilSchema, completeOnboardingSchema } from "../schemas/user.schema";
-import { updatePreferencesSchema } from "../schemas/preferences.schema";
+import { updateProfilSchema, completeOnboardingSchema } from "../../features/onboarding/onboarding-user/user.schema";
+import { updatePreferencesSchema } from "../../features/onboarding/onboarding-preferences/preferences.schema";
 
 export const userRouter = router({
   // GET /api/trpc/user/getMe

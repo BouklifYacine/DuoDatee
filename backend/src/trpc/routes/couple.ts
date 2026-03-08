@@ -1,19 +1,8 @@
 import { router, protectedProcedure } from "../index";
 import { prisma } from "../../../lib/prisma";
-import { createCoupleSchema, joinCoupleSchema } from "../schemas/couple.schema";
+import { createCoupleSchema, joinCoupleSchema } from "../../features/onboarding/onboarding-couple/couple.schema";
 import { TRPCError } from "@trpc/server";
-import { randomBytes } from "crypto";
-import { z } from "zod";
-
-// Fonction utilitaire pour générer un code d'invitation de 6 caractères
-// Utilise crypto.randomBytes pour une sécurité appropriée
-function generateInviteCode(): string {
-  const characters = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  const bytes = randomBytes(6);
-  return Array.from(bytes)
-    .map((byte) => characters[byte % characters.length])
-    .join("");
-}
+import { generateInviteCode } from "../../../lib/generateInviteCode";
 
 export const coupleRouter = router({
   // GET /api/trpc/couple/getMyCouple
