@@ -1,18 +1,18 @@
 import { useForm } from "@tanstack/react-form";
 import { useRouter } from "expo-router";
-import { View, Text, Alert } from "react-native";
+import { Alert, Text, View } from "react-native";
 import { StepContainer } from "@/components/onboarding";
 import {
-  useOnboarding,
   ActivityTypeSelector,
   BudgetSelector,
   DistanceStepper,
-  type PreferredType,
   type PreferredBudget,
+  type PreferredType,
+  useOnboarding,
 } from "@/features/onboarding";
 import { preferencesSchema } from "@/features/onboarding/schemas";
 
-const LABELS = ["Profil", "Préférences", "Couple"];
+const LABELS = ["Profil", "Preferences", "Couple"];
 
 export default function Step2Preferences() {
   const router = useRouter();
@@ -26,25 +26,33 @@ export default function Step2Preferences() {
     },
     onSubmit: async ({ value }) => {
       const result = preferencesSchema.safeParse(value);
+
       if (!result.success) {
-        Alert.alert("Erreur de validation", "Veuillez vérifier vos préférences.");
+        Alert.alert(
+          "Erreur de validation",
+          "Veuillez verifier vos preferences."
+        );
         return;
       }
+
       try {
-        await updatePreferences(result.data as { preferredTypes: PreferredType[]; preferredBudget: PreferredBudget; preferredDistance: number });
+        await updatePreferences(result.data as {
+          preferredTypes: PreferredType[];
+          preferredBudget: PreferredBudget;
+          preferredDistance: number;
+        });
         router.push("/step-3-couple");
-      } catch (err) {
-        console.error("[Onboarding] updatePreferences failed:", err);
+      } catch {
         Alert.alert(
           "Erreur",
-          "Impossible de sauvegarder vos préférences. Vérifiez votre connexion et réessayez."
+          "Impossible de sauvegarder vos preferences. Verifiez votre connexion et reessayez."
         );
       }
     },
   });
 
   return (
-    <form.Subscribe selector={(s) => s.values}>
+    <form.Subscribe selector={(state) => state.values}>
       {(values) => {
         const { preferredTypes, preferredBudget, preferredDistance } = values;
         const canSubmit =
@@ -55,7 +63,10 @@ export default function Step2Preferences() {
 
         const toggleType = (type: PreferredType) => {
           if (preferredTypes.includes(type)) {
-            form.setFieldValue("preferredTypes", preferredTypes.filter((t) => t !== type));
+            form.setFieldValue(
+              "preferredTypes",
+              preferredTypes.filter((item) => item !== type)
+            );
           } else if (preferredTypes.length < 3) {
             form.setFieldValue("preferredTypes", [...preferredTypes, type]);
           }
@@ -70,8 +81,8 @@ export default function Step2Preferences() {
             onNext={() => {
               if (!canSubmit) {
                 Alert.alert(
-                  "Préférences incomplètes",
-                  "Veuillez sélectionner au moins une activité et un budget."
+                  "Preferences incompletes",
+                  "Veuillez selectionner au moins une activite et un budget."
                 );
                 return;
               }
@@ -82,32 +93,39 @@ export default function Step2Preferences() {
           >
             <View className="flex-1 px-1">
               <View className="mb-7 mt-1">
-                <Text className="text-accent text-xs font-bold tracking-widest uppercase mb-2">
-                  ÉTAPE 2 SUR 3
+                <Text className="mb-2 text-xs font-bold uppercase tracking-widest text-accent">
+                  ETAPE 2 SUR 3
                 </Text>
-                <Text className="text-white text-[28px] font-extrabold leading-9 mb-2">
+                <Text className="mb-2 text-[28px] font-extrabold leading-9 text-white">
                   {"Vos "}
-                  <Text className="text-accent">préférences</Text>
+                  <Text className="text-accent">preferences</Text>
                 </Text>
-                <Text className="text-text-secondary text-sm leading-[22px]">
-                  Dites-nous ce que vous aimez pour des suggestions personnalisées
+                <Text className="text-sm leading-[22px] text-text-secondary">
+                  Dites-nous ce que vous aimez pour des suggestions personnalisees
                 </Text>
               </View>
 
               <View className="mb-10">
-                <ActivityTypeSelector selected={preferredTypes} onToggle={toggleType} />
+                <ActivityTypeSelector
+                  selected={preferredTypes}
+                  onToggle={toggleType}
+                />
               </View>
 
               <View className="mb-10">
                 <BudgetSelector
                   selected={preferredBudget}
-                  onSelect={(b) => form.setFieldValue("preferredBudget", b)}
+                  onSelect={(budget) =>
+                    form.setFieldValue("preferredBudget", budget)
+                  }
                 />
               </View>
 
               <DistanceStepper
                 value={preferredDistance}
-                onChange={(v) => form.setFieldValue("preferredDistance", v)}
+                onChange={(distance) =>
+                  form.setFieldValue("preferredDistance", distance)
+                }
               />
             </View>
           </StepContainer>

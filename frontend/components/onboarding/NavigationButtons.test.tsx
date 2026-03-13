@@ -8,22 +8,16 @@ describe("NavigationButtons", () => {
   };
 
   describe("Rendu", () => {
-    it("affiche le label par defaut 'Continue'", () => {
+    it("affiche le libelle par defaut du bouton suivant", () => {
       render(<NavigationButtons {...defaultProps} />);
 
-      expect(screen.getByText("Continue")).toBeTruthy();
+      expect(screen.getByText("Continuer")).toBeTruthy();
     });
 
-    it("affiche un label personnalise", () => {
+    it("affiche un label personnalise pour le bouton suivant", () => {
       render(<NavigationButtons {...defaultProps} nextLabel="Suivant" />);
 
       expect(screen.getByText("Suivant")).toBeTruthy();
-    });
-
-    it("affiche le badge de progression", () => {
-      render(<NavigationButtons {...defaultProps} />);
-
-      expect(screen.getByText("Etape suivante")).toBeTruthy();
     });
   });
 
@@ -32,9 +26,18 @@ describe("NavigationButtons", () => {
       const onNext = vi.fn();
       render(<NavigationButtons {...defaultProps} onNext={onNext} />);
 
-      fireEvent.press(screen.getByText("Continue"));
+      fireEvent.press(screen.getByText("Continuer"));
 
       expect(onNext).toHaveBeenCalledTimes(1);
+    });
+
+    it("appelle onBack au clic sur Retour", () => {
+      const onBack = vi.fn();
+      render(<NavigationButtons {...defaultProps} onBack={onBack} />);
+
+      fireEvent.press(screen.getByText("Retour"));
+
+      expect(onBack).toHaveBeenCalledTimes(1);
     });
 
     it("n'appelle pas onNext si le bouton est desactive", () => {
@@ -47,7 +50,7 @@ describe("NavigationButtons", () => {
         />
       );
 
-      expect(screen.getByText("Continue")).toBeTruthy();
+      expect(screen.getByText("Continuer")).toBeTruthy();
     });
   });
 
@@ -55,33 +58,31 @@ describe("NavigationButtons", () => {
     it("desactive le bouton quand isNextDisabled est true", () => {
       render(<NavigationButtons {...defaultProps} isNextDisabled={true} />);
 
-      expect(screen.getByText("Continue")).toBeTruthy();
+      expect(screen.getByText("Continuer")).toBeTruthy();
     });
 
     it("affiche le loader quand isLoading est true", () => {
       render(<NavigationButtons {...defaultProps} isLoading={true} />);
 
-      expect(screen.queryByText("Continue")).toBeNull();
+      expect(screen.queryByText("Continuer")).toBeNull();
     });
 
     it("n'affiche pas le loader quand isLoading est false", () => {
       render(<NavigationButtons {...defaultProps} isLoading={false} />);
 
-      expect(screen.getByText("Continue")).toBeTruthy();
-    });
-  });
-
-  describe("Labels personnalises", () => {
-    it("affiche 'Commencer' comme label", () => {
-      render(<NavigationButtons {...defaultProps} nextLabel="Commencer" />);
-
-      expect(screen.getByText("Commencer")).toBeTruthy();
+      expect(screen.getByText("Continuer")).toBeTruthy();
     });
 
-    it("affiche 'Terminer' comme label", () => {
-      render(<NavigationButtons {...defaultProps} nextLabel="Terminer" />);
+    it("affiche le bouton Retour quand onBack est fourni", () => {
+      render(<NavigationButtons {...defaultProps} onBack={vi.fn()} />);
 
-      expect(screen.getByText("Terminer")).toBeTruthy();
+      expect(screen.getByText("Retour")).toBeTruthy();
+    });
+
+    it("masque le bouton Retour quand onBack n'est pas fourni", () => {
+      render(<NavigationButtons {...defaultProps} />);
+
+      expect(screen.queryByText("Retour")).toBeNull();
     });
   });
 });

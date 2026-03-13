@@ -33,7 +33,8 @@ export function StepContainer({
   isBackDisabled = false,
   isNextDisabled = false,
   isLoading = false,
-  nextLabel = "Continue",
+  nextLabel = "Continuer",
+  backLabel = "Retour",
   showBackButton = true,
   showProgressBar = true,
   showNavigationButtons = true,
@@ -95,6 +96,7 @@ export function StepContainer({
           isNextDisabled={isNextDisabled}
           isLoading={isLoading}
           nextLabel={nextLabel}
+          backLabel={backLabel}
           showBackButton={showBackButton}
         />
       )}

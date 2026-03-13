@@ -28,7 +28,7 @@ describe("StepContainer", () => {
     it("affiche les NavigationButtons", () => {
       render(<StepContainer {...defaultProps} />);
 
-      expect(screen.getByText("Continue")).toBeTruthy();
+      expect(screen.getByText("Continuer")).toBeTruthy();
     });
   });
 
@@ -37,7 +37,7 @@ describe("StepContainer", () => {
       const onNext = vi.fn();
       render(<StepContainer {...defaultProps} onNext={onNext} />);
 
-      fireEvent.press(screen.getByText("Continue"));
+      fireEvent.press(screen.getByText("Continuer"));
 
       expect(onNext).toHaveBeenCalledTimes(1);
     });
@@ -79,7 +79,7 @@ describe("StepContainer", () => {
     it("masque les NavigationButtons quand showNavigationButtons est false", () => {
       render(<StepContainer {...defaultProps} showNavigationButtons={false} />);
 
-      expect(screen.queryByText("Continue")).toBeNull();
+      expect(screen.queryByText("Continuer")).toBeNull();
     });
 
     it("affiche un label personnalisé pour le bouton next", () => {
@@ -93,14 +93,13 @@ describe("StepContainer", () => {
     it("désactive le bouton next quand isNextDisabled est true", () => {
       render(<StepContainer {...defaultProps} isNextDisabled={true} />);
 
-      expect(screen.getByText("Continue")).toBeTruthy();
+      expect(screen.getByText("Continuer")).toBeTruthy();
     });
 
     it("affiche le loader quand isLoading est true", () => {
       render(<StepContainer {...defaultProps} isLoading={true} />);
 
-      // Le texte "Continue" ne doit pas être visible
-      expect(screen.queryByText("Continue")).toBeNull();
+      expect(screen.queryByText("Continuer")).toBeNull();
     });
   });
 
