@@ -8,28 +8,22 @@ describe("NavigationButtons", () => {
   };
 
   describe("Rendu", () => {
-    it("affiche le label par défaut 'Continue'", () => {
+    it("affiche le label par defaut 'Continue'", () => {
       render(<NavigationButtons {...defaultProps} />);
 
       expect(screen.getByText("Continue")).toBeTruthy();
     });
 
-    it("affiche un label personnalisé", () => {
+    it("affiche un label personnalise", () => {
       render(<NavigationButtons {...defaultProps} nextLabel="Suivant" />);
 
       expect(screen.getByText("Suivant")).toBeTruthy();
     });
 
-    it("affiche le cœur emoji", () => {
+    it("affiche le badge de progression", () => {
       render(<NavigationButtons {...defaultProps} />);
 
-      expect(screen.getByText("❤️")).toBeTruthy();
-    });
-
-    it("affiche les chevrons de navigation", () => {
-      render(<NavigationButtons {...defaultProps} />);
-
-      expect(screen.getByText(">>>")).toBeTruthy();
+      expect(screen.getByText("Etape suivante")).toBeTruthy();
     });
   });
 
@@ -43,27 +37,30 @@ describe("NavigationButtons", () => {
       expect(onNext).toHaveBeenCalledTimes(1);
     });
 
-    it("n'appelle pas onNext si le bouton est désactivé", () => {
+    it("n'appelle pas onNext si le bouton est desactive", () => {
       const onNext = vi.fn();
-      render(<NavigationButtons {...defaultProps} onNext={onNext} isNextDisabled={true} />);
+      render(
+        <NavigationButtons
+          {...defaultProps}
+          onNext={onNext}
+          isNextDisabled={true}
+        />
+      );
 
-      // Le bouton devrait être visuellement présent mais pas cliquable
       expect(screen.getByText("Continue")).toBeTruthy();
     });
   });
 
-  describe("États", () => {
-    it("désactive le bouton quand isNextDisabled est true", () => {
+  describe("Etats", () => {
+    it("desactive le bouton quand isNextDisabled est true", () => {
       render(<NavigationButtons {...defaultProps} isNextDisabled={true} />);
 
-      // Le bouton doit être rendu avec un style différent
       expect(screen.getByText("Continue")).toBeTruthy();
     });
 
     it("affiche le loader quand isLoading est true", () => {
       render(<NavigationButtons {...defaultProps} isLoading={true} />);
 
-      // Le texte "Continue" ne doit pas être visible
       expect(screen.queryByText("Continue")).toBeNull();
     });
 
@@ -74,7 +71,7 @@ describe("NavigationButtons", () => {
     });
   });
 
-  describe("Labels personnalisés", () => {
+  describe("Labels personnalises", () => {
     it("affiche 'Commencer' comme label", () => {
       render(<NavigationButtons {...defaultProps} nextLabel="Commencer" />);
 
