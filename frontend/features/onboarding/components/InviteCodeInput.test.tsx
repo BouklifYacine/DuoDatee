@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react-native";
+import { describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react-native";
 import { InviteCodeInput } from "./InviteCodeInput";
 
 describe("InviteCodeInput", () => {
@@ -15,10 +15,10 @@ describe("InviteCodeInput", () => {
       expect(screen.getByText("Code d'invitation")).toBeTruthy();
     });
 
-    it("affiche l'icône de cadenas", () => {
+    it("affiche l'icone de cadenas", () => {
       render(<InviteCodeInput {...defaultProps} />);
 
-      expect(screen.getByText("🔐")).toBeTruthy();
+      expect(screen.getByText("\u{1F510}")).toBeTruthy();
     });
 
     it("affiche le placeholder XXXXXX", () => {
@@ -33,58 +33,56 @@ describe("InviteCodeInput", () => {
       const onChange = vi.fn();
       render(<InviteCodeInput {...defaultProps} onChange={onChange} />);
 
-      const input = screen.getByPlaceholderText("XXXXXX");
-      fireEvent.changeText(input, "ABC");
+      fireEvent.changeText(screen.getByPlaceholderText("XXXXXX"), "ABC");
 
-      expect(onChange).toHaveBeenCalled();
+      expect(onChange).toHaveBeenCalledWith("ABC");
     });
 
     it("convertit en majuscules", () => {
       const onChange = vi.fn();
       render(<InviteCodeInput {...defaultProps} onChange={onChange} />);
 
-      const input = screen.getByPlaceholderText("XXXXXX");
-      fireEvent.changeText(input, "abc");
+      fireEvent.changeText(screen.getByPlaceholderText("XXXXXX"), "abc");
 
-      // Vérifier que la conversion en majuscules a été faite
-      expect(onChange).toHaveBeenCalled();
+      expect(onChange).toHaveBeenCalledWith("ABC");
     });
 
-    it("limite à 6 caractères", () => {
+    it("limite a 6 caracteres", () => {
       const onChange = vi.fn();
       render(<InviteCodeInput {...defaultProps} onChange={onChange} />);
 
-      const input = screen.getByPlaceholderText("XXXXXX");
-      fireEvent.changeText(input, "ABCDEFGH");
+      fireEvent.changeText(screen.getByPlaceholderText("XXXXXX"), "ABCDEFGH");
 
-      // Le texte ne devrait pas dépasser 6 caractères
-      expect(onChange).toHaveBeenCalled();
+      expect(onChange).toHaveBeenCalledWith("ABCDEF");
+    });
+
+    it("supprime les espaces avant validation", () => {
+      const onChange = vi.fn();
+      render(<InviteCodeInput {...defaultProps} onChange={onChange} />);
+
+      fireEvent.changeText(screen.getByPlaceholderText("XXXXXX"), "ab 12");
+
+      expect(onChange).toHaveBeenCalledWith("AB12");
     });
   });
 
-  describe("États", () => {
+  describe("Etats", () => {
     it("affiche le message de progression (0/6)", () => {
       render(<InviteCodeInput {...defaultProps} value="" />);
 
-      expect(screen.getByText("0/6 — demandez le code à votre partenaire")).toBeTruthy();
+      expect(screen.getByText("0/6 - demandez le code a votre partenaire")).toBeTruthy();
     });
 
     it("affiche le message de progression (3/6)", () => {
       render(<InviteCodeInput {...defaultProps} value="ABC" />);
 
-      expect(screen.getByText("3/6 — demandez le code à votre partenaire")).toBeTruthy();
+      expect(screen.getByText("3/6 - demandez le code a votre partenaire")).toBeTruthy();
     });
 
-    it("affiche '✓ Code prêt' quand 6 caractères", () => {
+    it("affiche 'Code pret' quand 6 caracteres", () => {
       render(<InviteCodeInput {...defaultProps} value="ABCDEF" />);
 
-      expect(screen.getByText("✓ Code prêt")).toBeTruthy();
-    });
-
-    it("affiche le border vert quand complet", () => {
-      render(<InviteCodeInput {...defaultProps} value="ABCDEF" />);
-
-      expect(screen.getByText("✓ Code prêt")).toBeTruthy();
+      expect(screen.getByText("Code pret")).toBeTruthy();
     });
   });
 
@@ -92,22 +90,19 @@ describe("InviteCodeInput", () => {
     it("affiche une valeur vide", () => {
       render(<InviteCodeInput {...defaultProps} value="" />);
 
-      const input = screen.getByPlaceholderText("XXXXXX");
-      expect(input.props.value).toBe("");
+      expect(screen.getByPlaceholderText("XXXXXX").props.value).toBe("");
     });
 
     it("affiche une valeur partielle", () => {
       render(<InviteCodeInput {...defaultProps} value="AB" />);
 
-      const input = screen.getByPlaceholderText("XXXXXX");
-      expect(input.props.value).toBe("AB");
+      expect(screen.getByPlaceholderText("XXXXXX").props.value).toBe("AB");
     });
 
-    it("affiche une valeur complète", () => {
+    it("affiche une valeur complete", () => {
       render(<InviteCodeInput {...defaultProps} value="ABCDEF" />);
 
-      const input = screen.getByPlaceholderText("XXXXXX");
-      expect(input.props.value).toBe("ABCDEF");
+      expect(screen.getByPlaceholderText("XXXXXX").props.value).toBe("ABCDEF");
     });
   });
 });
