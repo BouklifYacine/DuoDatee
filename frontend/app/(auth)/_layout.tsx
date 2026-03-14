@@ -3,12 +3,13 @@ import { Stack } from "expo-router";
 export default function AuthLayout() {
   return (
     <Stack
-      initialRouteName="welcome"
+      initialRouteName="intro"
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: "#8B3A52" },
+        contentStyle: { backgroundColor: "#F7F0E8" },
       }}
     >
+      <Stack.Screen name="intro" />
       <Stack.Screen name="welcome" />
       <Stack.Screen name="sign-in" />
       <Stack.Screen name="sign-up" />

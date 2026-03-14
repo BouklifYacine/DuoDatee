@@ -16,7 +16,7 @@ export default function HomeScreen() {
       return result;
     },
     onSuccess: () => {
-      router.replace("/welcome");
+      router.replace("/intro");
     },
   });
 

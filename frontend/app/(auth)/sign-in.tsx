@@ -77,6 +77,39 @@ export default function SignInScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
+        <Pressable
+          onPress={() => router.back()}
+          hitSlop={10}
+          style={({ pressed }) => ({
+            alignSelf: "flex-start",
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 8,
+            marginBottom: 18,
+            paddingHorizontal: 14,
+            paddingVertical: 10,
+            borderRadius: 999,
+            backgroundColor: pressed ? "#23232B" : OB.BG_CARD,
+            borderWidth: 1,
+            borderColor: OB.BORDER_DEFAULT,
+          })}
+        >
+          <MaterialCommunityIcons
+            name="chevron-left"
+            size={18}
+            color={OB.TEXT_PRIMARY}
+          />
+          <Text
+            style={{
+              color: OB.TEXT_PRIMARY,
+              fontSize: 14,
+              fontWeight: "700",
+            }}
+          >
+            Retour
+          </Text>
+        </Pressable>
+
         {/* App name */}
         <Text style={{ textAlign: "center", color: OB.TEXT_PRIMARY, fontSize: 26, fontWeight: "800", letterSpacing: 0.5, marginBottom: 28 }}>
           DuoDate

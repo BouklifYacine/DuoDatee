@@ -72,6 +72,21 @@ export default function SignUpScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View className="flex-1 px-6 pb-10 pt-[60px]">
+          <Pressable
+            onPress={() => router.back()}
+            hitSlop={10}
+            className="mb-[18px] self-start rounded-full border border-[#2E2E38] bg-[#1A1A20] px-3.5 py-2.5"
+          >
+            <View className="flex-row items-center gap-2">
+              <MaterialCommunityIcons
+                name="chevron-left"
+                size={18}
+                color="#FFFFFF"
+              />
+              <Text className="text-sm font-bold text-white">Retour</Text>
+            </View>
+          </Pressable>
+
           <Text className="mb-7 text-center text-[26px] font-extrabold tracking-[0.5px] text-white">
             DuoDate
           </Text>
